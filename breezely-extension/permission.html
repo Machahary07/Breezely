@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Breezely Microphone Permission</title>
+    <!-- Google Fonts: Comfortaa & Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            text-align: center;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid #e2e8f0;
+            max-width: 400px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+
+        h2 {
+            font-family: 'Comfortaa', sans-serif;
+            font-weight: 700;
+            margin-top: 0;
+            color: #3b82f6;
+        }
+
+        p {
+            color: #64748b;
+            line-height: 1.6;
+        }
+
+        .success {
+            color: #16a34a;
+            font-weight: 600;
+        }
+
+        .error {
+            color: #ef4444;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container" id="content">
+        <h2>Microphone Access Required</h2>
+        <p>Breezely needs microphone access to use the speech-to-text feature.</p>
+        <p>Please click <strong>"Allow"</strong> when prompted by your browser.</p>
+    </div>
+    <script src="permission.js"></script>
+</body>
+
+</html>
