@@ -1,0 +1,76 @@
+<app-navbar></app-navbar>
+
+<main class="page-container">
+  <div class="status-wrapper">
+    
+    <!-- Header Hero -->
+    <header class="status-header">
+      <h1 class="page-title">System Status</h1>
+      <p class="page-subtitle">Real-time and historical data on Breezely system performance.</p>
+    </header>
+
+    <!-- Global State Banner -->
+    <div class="global-state-panel success">
+      <div class="pulse-icon"></div>
+      <h2 class="global-state-text">All Systems Operational</h2>
+    </div>
+
+    <!-- Uptime Visualization (Industrial Block Grid) -->
+    <section class="block-grid-section">
+      <div class="block-grid-header">
+        <span class="grid-title">Uptime over past 60 days</span>
+        <span class="grid-uptime-text">99.98% uptime</span>
+      </div>
+      <div class="block-row">
+        <!-- Iterate blocks here representing days -->
+        <div 
+          *ngFor="let block of uptimeBlocks; let i = index" 
+          class="uptime-block" 
+          [class.success]="block" 
+          [class.warning]="!block"
+          [title]="block ? 'No downtime recorded' : 'Partial downtime recorded'"
+        ></div>
+      </div>
+      <div class="block-legend">
+        <span>60 days ago</span>
+        <div class="legend-divider"></div>
+        <span>Today</span>
+      </div>
+    </section>
+
+    <!-- Services List -->
+    <section class="services-list-section">
+      <h3 class="section-heading">Core Components</h3>
+      <div class="services-card">
+        
+        <div class="service-item" *ngFor="let service of services">
+          <span class="service-name">{{ service.name }}</span>
+          <span class="service-status" [class]="service.color">
+            <svg *ngIf="service.color === 'success'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+            {{ service.status }}
+          </span>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Past Incidents -->
+    <section class="incidents-section">
+      <h3 class="section-heading">Past Incidents</h3>
+      
+      <div class="incident-card" *ngFor="let incident of pastIncidents">
+        <div class="incident-header">
+          <span class="incident-date">{{ incident.date }}</span>
+          <span class="incident-badge resolved">{{ incident.status }}</span>
+        </div>
+        <h4 class="incident-title">{{ incident.title }}</h4>
+        <p class="incident-body">{{ incident.message }}</p>
+      </div>
+
+    </section>
+
+  </div>
+</main>

@@ -1,0 +1,250 @@
+// ===========================
+// Breezely Status Page Styles
+// ===========================
+
+.page-container
+  width: 100%
+  min-height: 100vh
+  background-color: var(--black)
+  display: flex
+  flex-direction: column
+  align-items: center
+  padding: 120px 24px 80px 24px
+
+.status-wrapper
+  width: 100%
+  max-width: 800px
+  display: flex
+  flex-direction: column
+  gap: 32px
+
+// --- Header --- //
+.status-header
+  margin-bottom: 8px
+
+.page-title
+  font-family: var(--font-heading)
+  font-size: 36px
+  font-weight: 700
+  color: var(--white)
+  letter-spacing: -0.02em
+  margin-bottom: 8px
+
+.page-subtitle
+  font-family: var(--font-body)
+  font-size: 16px
+  color: rgba(255, 255, 255, 0.6)
+  line-height: 1.5
+
+// --- Global State Banner --- //
+.global-state-panel
+  display: flex
+  align-items: center
+  padding: 24px 32px
+  border-radius: 16px
+  background: rgba(255, 255, 255, 0.03)
+  border: 1px solid rgba(255, 255, 255, 0.08)
+  gap: 16px
+
+  &.success
+    border-color: rgba(140, 255, 136, 0.3)
+    background: rgba(140, 255, 136, 0.05)
+
+.pulse-icon
+  width: 16px
+  height: 16px
+  border-radius: 50%
+  background: var(--breezely-green)
+  box-shadow: 0 0 16px var(--breezely-green)
+  position: relative
+
+  &::after
+    content: ''
+    position: absolute
+    top: -4px
+    left: -4px
+    right: -4px
+    bottom: -4px
+    border-radius: 50%
+    border: 2px solid var(--breezely-green)
+    animation: ripple 2s infinite ease-out
+
+@keyframes ripple
+  0%
+    transform: scale(0.8)
+    opacity: 1
+  100%
+    transform: scale(2)
+    opacity: 0
+
+.global-state-text
+  font-family: var(--font-body)
+  font-size: 20px
+  font-weight: 600
+  color: var(--white)
+  margin: 0
+
+// --- Uptime Block Grid --- //
+.block-grid-section
+  display: flex
+  flex-direction: column
+  padding: 24px 32px
+  border-radius: 16px
+  background: rgba(255, 255, 255, 0.02)
+  border: 1px solid rgba(255, 255, 255, 0.05)
+
+.block-grid-header
+  display: flex
+  justify-content: space-between
+  align-items: center
+  margin-bottom: 20px
+
+.grid-title
+  font-family: var(--font-body)
+  font-size: 14px
+  font-weight: 600
+  color: var(--white)
+
+.grid-uptime-text
+  font-family: var(--font-body)
+  font-size: 14px
+  color: var(--breezely-green)
+  font-weight: 700
+
+.block-row
+  display: flex
+  gap: 3px
+  width: 100%
+  height: 48px
+
+.uptime-block
+  flex: 1
+  height: 100%
+  border-radius: 3px
+  background: rgba(255, 255, 255, 0.1)
+  transition: transform 0.2s
+
+  &:hover
+    transform: scale(1.1)
+    z-index: 10
+    position: relative
+
+  &.success
+    background: var(--breezely-green)
+    opacity: 0.9
+
+  &.warning
+    background: #ffb142
+    opacity: 0.9
+
+.block-legend
+  display: flex
+  align-items: center
+  justify-content: space-between
+  font-family: var(--font-body)
+  font-size: 12px
+  color: rgba(255, 255, 255, 0.4)
+  margin-top: 12px
+
+.legend-divider
+  flex: 1
+  height: 1px
+  background: rgba(255, 255, 255, 0.1)
+  margin: 0 16px
+
+// --- Services List --- //
+.services-list-section
+  margin-top: 16px
+
+.section-heading
+  font-family: var(--font-heading)
+  font-size: 20px
+  font-weight: 600
+  color: var(--white)
+  margin-bottom: 16px
+
+.services-card
+  display: flex
+  flex-direction: column
+  border-radius: 16px
+  background: rgba(255, 255, 255, 0.02)
+  border: 1px solid rgba(255, 255, 255, 0.05)
+  overflow: hidden
+
+.service-item
+  display: flex
+  align-items: center
+  justify-content: space-between
+  padding: 20px 32px
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05)
+
+  &:last-child
+    border-bottom: none
+
+.service-name
+  font-family: var(--font-body)
+  font-size: 16px
+  color: var(--white)
+
+.service-status
+  display: flex
+  align-items: center
+  gap: 8px
+  font-family: var(--font-body)
+  font-size: 14px
+  font-weight: 600
+
+  &.success
+    color: var(--breezely-green)
+
+// --- Incidents Section --- //
+.incidents-section
+  margin-top: 32px
+  display: flex
+  flex-direction: column
+  gap: 16px
+
+.incident-card
+  display: flex
+  flex-direction: column
+  padding: 24px 32px
+  border-radius: 16px
+  background: rgba(255, 255, 255, 0.02)
+  border: 1px solid rgba(255, 255, 255, 0.05)
+
+.incident-header
+  display: flex
+  align-items: center
+  gap: 16px
+  margin-bottom: 12px
+
+.incident-date
+  font-family: var(--font-body)
+  font-size: 13px
+  color: rgba(255, 255, 255, 0.5)
+
+.incident-badge
+  padding: 4px 10px
+  border-radius: 100px
+  font-family: var(--font-body)
+  font-size: 11px
+  font-weight: 700
+  text-transform: uppercase
+  letter-spacing: 0.1em
+
+  &.resolved
+    background: rgba(255, 255, 255, 0.1)
+    color: var(--white)
+
+.incident-title
+  font-family: var(--font-heading)
+  font-size: 18px
+  font-weight: 600
+  color: var(--white)
+  margin-bottom: 8px
+
+.incident-body
+  font-family: var(--font-body)
+  font-size: 14px
+  color: rgba(255, 255, 255, 0.7)
+  line-height: 1.6

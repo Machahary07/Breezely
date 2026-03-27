@@ -77,3 +77,20 @@ button
 img
   max-width: 100%
   display: block
+
+// --- Global Text Selection (Breezely Green) --- //
+::selection
+  background: var(--breezely-green)
+  color: var(--black)
+
+// --- Chrome Autofill Override (Dark Mode + Green Text) --- //
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active
+  // Replaces the ugly white Chrome box with a dark glassy shade
+  -webkit-box-shadow: 0 0 0 30px #1c1c1c inset !important
+  // Changes the text inside the autofill to Breezely green
+  -webkit-text-fill-color: var(--breezely-green) !important
+  transition: background-color 5000s ease-in-out 0s
+
