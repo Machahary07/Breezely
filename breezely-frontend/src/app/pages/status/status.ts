@@ -23,13 +23,13 @@ export class StatusComponent {
 
   pastIncidents = [
     { 
-      date: 'Mar 26, 2026', 
+      date: 'Mar 27, 2026', 
       title: 'Elevated API Response Times', 
       status: 'Resolved',
       message: 'We experienced slightly slower response times on the AI Engine API. The system auto-scaled to meet demand and latency returned to normal.'
     },
     { 
-      date: 'Mar 20, 2026', 
+      date: 'Mar 26, 2026', 
       title: 'Authentication Sync Issue', 
       status: 'Resolved',
       message: 'A minor issue with Google Auth redirecting slower than usual was identified. Full resolution deployed.'

@@ -44,3 +44,16 @@ __screenshots__/
 Thumbs.db
 .vercel
 .env*.local
+
+# Firebase
+firebase-debug.log
+.firebase/
+*-debug.log
+
+# Environment secrets (if swapped to secret keys later)
+src/environments/environment.ts
+src/environments/environment.development.ts
+
+# Service account keys (NEVER commit these)
+**/service-account*.json
+**/serviceAccountKey*.json
