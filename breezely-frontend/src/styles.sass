@@ -1,1 +1,79 @@
-/* You can add global styles to this file, and also import other style files */
+/* Global Styles - Breezely */
+@import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;600;700&family=Lato:wght@300;400;600;700&display=swap')
+
+\:root
+  // Colors
+  --breezely-green: #8CFF88
+  --black: #151515
+  --white: #FFFFFF
+
+  // Fonts
+  --font-heading: 'Comfortaa', cursive
+  --font-body: 'Lato', sans-serif
+
+  // Font Scale
+  --hero-heading-size: 106px
+  --section-heading-size: 36px
+  --card-heading-size: 24px
+  --body-size: 16px
+  --caption-size: 14px
+  --button-size: 14px
+
+*,
+*::before,
+*::after
+  margin: 0
+  padding: 0
+  box-sizing: border-box
+
+html
+  scroll-behavior: smooth
+
+body
+  font-family: var(--font-body)
+  font-size: var(--body-size)
+  font-weight: 400
+  color: var(--white)
+  background-color: var(--black)
+  -webkit-font-smoothing: antialiased
+  -moz-osx-font-smoothing: grayscale
+  overflow-x: hidden
+
+h1, h2, h3
+  font-family: var(--font-heading)
+
+h1
+  font-size: var(--hero-heading-size)
+  font-weight: 700
+  line-height: 1.1
+
+h2
+  font-size: var(--section-heading-size)
+  font-weight: 600
+  line-height: 1.2
+
+h3
+  font-size: var(--card-heading-size)
+  font-weight: 600
+  line-height: 1.3
+
+a
+  text-decoration: none
+  color: inherit
+
+ul, li
+  list-style: none
+
+button
+  font-family: var(--font-body)
+  font-size: var(--button-size)
+  font-weight: 600
+  text-transform: uppercase
+  letter-spacing: 0.12em
+  cursor: pointer
+  border: none
+  outline: none
+
+img
+  max-width: 100%
+  display: block

@@ -1,0 +1,39 @@
+<header class="navbar" id="navbar">
+  <div class="navbar__logo">
+    <a href="/" aria-label="Breezely Home">
+      <img src="Breezely-logo-white-svg-header.svg" alt="Breezely Logo" class="navbar__logo-img" />
+    </a>
+  </div>
+
+  <!-- Desktop Nav -->
+  <nav class="navbar__right" aria-label="Main navigation">
+    <div class="navbar__pill">
+      <a href="#platform" class="navbar__link" id="nav-platform">Platform</a>
+      <a href="#team" class="navbar__link" id="nav-team">Team Commit&amp;Run</a>
+      <a href="#status" class="navbar__link" id="nav-status">Status</a>
+    </div>
+    <a routerLink="/signin" class="navbar__signin" id="nav-signin">Sign In</a>
+  </nav>
+
+  <!-- Mobile Hamburger -->
+  <button
+    class="navbar__hamburger"
+    id="nav-hamburger"
+    aria-label="Toggle menu"
+    (click)="toggleMenu()"
+  >
+    <span class="navbar__hamburger-line" [class.open]="mobileMenuOpen"></span>
+    <span class="navbar__hamburger-line" [class.open]="mobileMenuOpen"></span>
+    <span class="navbar__hamburger-line" [class.open]="mobileMenuOpen"></span>
+  </button>
+</header>
+
+<!-- Mobile Menu Overlay -->
+<div class="mobile-menu" [class.active]="mobileMenuOpen" id="mobile-menu">
+  <ul class="mobile-menu__links">
+    <li><a href="#platform" class="mobile-menu__link" (click)="closeMenu()">Platform</a></li>
+    <li><a href="#team" class="mobile-menu__link" (click)="closeMenu()">Team Commit&amp;Run</a></li>
+    <li><a href="#status" class="mobile-menu__link" (click)="closeMenu()">Status</a></li>
+    <li><a routerLink="/signin" class="mobile-menu__link mobile-menu__signin" (click)="closeMenu()">Sign In</a></li>
+  </ul>
+</div>

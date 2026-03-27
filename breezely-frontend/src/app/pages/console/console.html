@@ -1,0 +1,45 @@
+<div class="console-page">
+  <!-- Top Bar / Simple Nav -->
+  <header class="console-header">
+    <div class="header-logo">
+      <img src="breezely-logo-white.svg" alt="Breezely" class="logo-img" />
+      <span class="logo-text">Console</span>
+    </div>
+    <button class="logout-btn" (click)="logout()" *ngIf="user">Logout</button>
+  </header>
+
+  <!-- Main Content -->
+  <main class="console-main">
+    <div class="loading-state" *ngIf="isLoading">
+      <div class="spinner"></div>
+      <p>Loading your workspace...</p>
+    </div>
+
+    <!-- Centered Profile Layout -->
+    <div class="profile-card" *ngIf="!isLoading && user">
+      <!-- Fallback empty avatar if google doesn't provide photoURL -->
+      <img 
+        *ngIf="user.photoURL; else defaultAvatar" 
+        [src]="user.photoURL" 
+        alt="Profile Picture" 
+        class="profile-img" 
+      />
+      <ng-template #defaultAvatar>
+        <div class="profile-img-placeholder">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+        </div>
+      </ng-template>
+
+      <h1 class="profile-name">{{ user.displayName || 'Breezely User' }}</h1>
+      <p class="profile-email">{{ user.email }}</p>
+
+      <div class="coming-soon">
+        <p>Your intelligent browser automation workspace is getting ready.</p>
+        <div class="pulse-dot"></div>
+      </div>
+    </div>
+  </main>
+</div>

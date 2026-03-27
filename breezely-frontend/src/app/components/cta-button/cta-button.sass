@@ -1,0 +1,51 @@
+.cta-container
+  display: inline-flex
+  align-items: center
+  gap: 8px
+  text-decoration: none
+  cursor: pointer
+  width: fit-content
+
+.cta-pill
+  display: inline-flex
+  align-items: center
+  justify-content: center
+  background: var(--breezely-green)
+  color: var(--black)
+  padding: 14px 28px
+  border-radius: 100px
+  height: 48px
+
+.cta-text
+  font-family: var(--font-body)
+  font-size: 12px
+  font-weight: 700
+  text-transform: uppercase
+  letter-spacing: 0.14em
+  white-space: nowrap
+  pointer-events: none
+
+.cta-arrow
+  display: inline-flex
+  align-items: center
+  justify-content: center
+  width: 48px
+  height: 48px
+  background: var(--breezely-green)
+  color: var(--black)
+  border-radius: 50%
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1)
+  flex-shrink: 0
+
+  svg
+    display: block
+
+// --- Hover Logic ---
+// When the parent container is hovered, only the arrow circle transforms.
+// The text/pill background remains static (no hover effect).
+.cta-container:hover
+  .cta-arrow
+    transform: translateX(4px)
+    // Optional: slight contrast or shadow if it feels flat, 
+    // but the user specifically asked for "No hover effect on the text button".
+    // I will keep it simple as requested.

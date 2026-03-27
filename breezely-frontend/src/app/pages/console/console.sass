@@ -1,0 +1,164 @@
+.console-page
+  width: 100%
+  height: 100vh
+  background: var(--black)
+  display: flex
+  flex-direction: column
+  overflow: hidden
+
+.console-header
+  width: 100%
+  height: 72px
+  display: flex
+  align-items: center
+  justify-content: space-between
+  padding: 0 40px
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05)
+  background: rgba(20, 20, 20, 0.8)
+  backdrop-filter: blur(20px)
+
+.header-logo
+  display: flex
+  align-items: center
+  gap: 12px
+
+.logo-img
+  width: 32px
+  height: 32px
+
+.logo-text
+  font-family: var(--font-heading)
+  font-size: 18px
+  font-weight: 700
+  color: var(--white)
+
+.logout-btn
+  padding: 8px 16px
+  border-radius: 8px
+  background: rgba(255, 255, 255, 0.05)
+  color: rgba(255, 255, 255, 0.8)
+  font-family: var(--font-body)
+  font-size: 12px
+  font-weight: 600
+  border: 1px solid rgba(255, 255, 255, 0.1)
+  cursor: pointer
+  transition: all 0.2s
+
+  &:hover
+    background: rgba(255, 255, 255, 0.1)
+    color: var(--white)
+
+.console-main
+  flex: 1
+  display: flex
+  align-items: center
+  justify-content: center
+  position: relative
+  // subtle radial gradient to focus on center
+  background: radial-gradient(circle at center, rgba(30, 30, 30, 0.5) 0%, rgba(20, 20, 20, 1) 100%)
+
+.loading-state
+  display: flex
+  flex-direction: column
+  align-items: center
+  gap: 16px
+  color: rgba(255, 255, 255, 0.6)
+  font-family: var(--font-body)
+  font-size: 14px
+
+.spinner
+  width: 24px
+  height: 24px
+  border: 2px solid rgba(255, 255, 255, 0.1)
+  border-top-color: var(--breezely-green)
+  border-radius: 50%
+  animation: spin 1s linear infinite
+
+@keyframes spin
+  0%
+    transform: rotate(0deg)
+  100%
+    transform: rotate(360deg)
+
+.profile-card
+  display: flex
+  flex-direction: column
+  align-items: center
+  padding: 48px
+  background: rgba(255, 255, 255, 0.02)
+  border: 1px solid rgba(255, 255, 255, 0.05)
+  border-radius: 24px
+  backdrop-filter: blur(20px)
+  animation: fade-up 0.5s ease forwards
+  text-align: center
+
+.profile-img
+  width: 120px
+  height: 120px
+  border-radius: 50%
+  border: 2px solid rgba(255, 255, 255, 0.1)
+  padding: 4px
+  object-fit: cover
+  margin-bottom: 24px
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5)
+
+.profile-img-placeholder
+  width: 120px
+  height: 120px
+  border-radius: 50%
+  border: 2px solid rgba(255, 255, 255, 0.1)
+  display: flex
+  align-items: center
+  justify-content: center
+  color: rgba(255, 255, 255, 0.2)
+  background: rgba(255, 255, 255, 0.02)
+  margin-bottom: 24px
+
+.profile-name
+  font-family: var(--font-heading)
+  font-size: 32px
+  font-weight: 700
+  color: var(--white)
+  margin-bottom: 8px
+
+.profile-email
+  font-family: var(--font-body)
+  font-size: 15px
+  color: rgba(255, 255, 255, 0.5)
+  margin-bottom: 32px
+
+.coming-soon
+  display: inline-flex
+  align-items: center
+  gap: 12px
+  background: rgba(255, 255, 255, 0.05)
+  padding: 12px 24px
+  border-radius: 100px
+  font-family: var(--font-body)
+  font-size: 13px
+  color: rgba(255, 255, 255, 0.8)
+  border: 1px solid rgba(255, 255, 255, 0.08)
+
+.pulse-dot
+  width: 8px
+  height: 8px
+  border-radius: 50%
+  background: var(--breezely-green)
+  box-shadow: 0 0 12px var(--breezely-green)
+  animation: pulse 2s infinite
+
+@keyframes pulse
+  0%
+    box-shadow: 0 0 0 0 rgba(140, 255, 136, 0.4)
+  70%
+    box-shadow: 0 0 0 10px rgba(140, 255, 136, 0)
+  100%
+    box-shadow: 0 0 0 0 rgba(140, 255, 136, 0)
+
+@keyframes fade-up
+  from
+    opacity: 0
+    transform: translateY(20px)
+  to
+    opacity: 1
+    transform: translateY(0)

@@ -1,0 +1,313 @@
+// ===========================
+// Breezely Auth Page (Cockpit-style Clone)
+// ===========================
+
+.page-container
+  position: relative
+  width: 100%
+  height: 100vh
+  overflow: hidden
+  display: flex
+  align-items: center
+  justify-content: center
+  background: var(--black)
+
+.bg-video
+  position: absolute
+  top: 0
+  left: 0
+  width: 100%
+  height: 100%
+  object-fit: cover
+  z-index: 1
+
+.bg-overlay
+  position: absolute
+  top: 0
+  left: 0
+  width: 100%
+  height: 100%
+  z-index: 2
+  background: rgba(21, 21, 21, 0.4) // subtle dimming
+  backdrop-filter: blur(10px)
+
+// --- Centered Modal --- //
+.glass-modal
+  position: relative
+  z-index: 10
+  display: flex
+  width: 960px
+  max-width: 95%
+  min-height: 480px
+  border-radius: 40px
+  overflow: hidden
+  backdrop-filter: blur(30px)
+  -webkit-backdrop-filter: blur(30px)
+  border: 1px solid rgba(255, 255, 255, 0.1)
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.4)
+
+// --- Left Pane (Branding) --- //
+.modal-left
+  flex: 1
+  display: flex
+  flex-direction: column
+  justify-content: space-between
+  align-items: center
+  text-align: center
+  padding: 48px 32px
+  // The left side has a darker reddish/brown translucent feel in the design
+  background: linear-gradient(180deg, rgba(80, 20, 20, 0.2) 0%, rgba(20, 10, 10, 0.4) 100%)
+  border-right: 1px solid rgba(255, 255, 255, 0.05)
+
+.brand
+  display: flex
+  flex-direction: column
+  align-items: center
+  gap: 12px
+  margin-top: 20px
+
+.logo
+  width: 48px
+  height: 48px
+  margin-bottom: 8px
+
+.brand-name
+  font-family: var(--font-heading)
+  font-size: 24px
+  font-weight: 700
+  color: var(--white)
+
+.brand-desc
+  font-family: var(--font-body)
+  font-size: 13px
+  color: rgba(255, 255, 255, 0.7)
+  line-height: 1.5
+  margin-top: 4px
+  
+  strong
+    color: var(--white)
+    font-weight: 600
+
+// --- Social Button (Left Pane) --- //
+.social-btn
+  display: inline-flex
+  align-items: center
+  justify-content: center
+  gap: 10px
+  width: 100%
+  max-width: 280px
+  padding: 14px
+  border-radius: 100px
+  background: rgba(255, 255, 255, 0.08)
+  border: 1px solid rgba(255, 255, 255, 0.08)
+  color: var(--white)
+  font-family: var(--font-body)
+  font-size: 13px
+  font-weight: 600
+  cursor: pointer
+  transition: all 0.2s ease
+  margin-top: 40px
+
+  &:hover
+    background: rgba(255, 255, 255, 0.12)
+    border-color: rgba(255, 255, 255, 0.15)
+
+// --- Right Pane (Auth Forms) --- //
+.modal-right
+  flex: 1.1 // Slightly wider for inputs
+  display: flex
+  flex-direction: column
+  padding: 48px 40px
+  // The right side has a cleaner grey/black glassy feel
+  background: rgba(20, 20, 20, 0.65)
+  justify-content: center
+
+.auth-header
+  margin-bottom: 32px
+  text-align: left
+
+.auth-title
+  font-family: var(--font-heading)
+  font-size: 22px
+  font-weight: 700
+  color: var(--white)
+  margin-bottom: 4px
+
+.auth-subtitle
+  font-family: var(--font-body)
+  font-size: 13px
+  color: rgba(255, 255, 255, 0.6)
+
+// --- Forms --- //
+.auth-form
+  display: flex
+  flex-direction: column
+  gap: 16px
+
+.input-wrapper
+  position: relative
+  display: flex
+  align-items: center
+  width: 100%
+
+.input-icon
+  position: absolute
+  left: 14px
+  color: rgba(255, 255, 255, 0.4)
+  pointer-events: none
+
+.custom-input
+  width: 100%
+  background: rgba(255, 255, 255, 0.05)
+  border: 1px solid rgba(255, 255, 255, 0.08)
+  border-radius: 100px
+  padding: 16px 16px 16px 48px
+  font-family: var(--font-body)
+  font-size: 14px
+  color: var(--white)
+  transition: all 0.2s ease
+  outline: none
+
+  &::placeholder
+    color: rgba(255, 255, 255, 0.3)
+
+  &:focus
+    background: rgba(255, 255, 255, 0.08)
+    border-color: rgba(255, 255, 255, 0.2)
+
+// --- Primary Button --- //
+.primary-btn
+  display: flex
+  align-items: center
+  justify-content: space-between
+  width: 100%
+  padding: 16px 24px
+  border-radius: 100px
+  background: rgba(255, 255, 255, 0.1)
+  border: 1px solid rgba(255, 255, 255, 0.1)
+  color: var(--white)
+  font-family: var(--font-body)
+  font-size: 14px
+  font-weight: 600
+  cursor: pointer
+  transition: all 0.2s ease
+  margin-top: 8px
+
+  &:hover:not(:disabled)
+    background: rgba(255, 255, 255, 0.15)
+    border-color: rgba(255, 255, 255, 0.2)
+  
+  &:disabled
+    opacity: 0.6
+    cursor: not-allowed
+
+.btn-arrow
+  color: rgba(255, 255, 255, 0.6)
+
+// --- Feedback MSG --- //
+.feedback-container
+  min-height: 20px
+  margin-top: -6px
+
+.feedback-msg
+  font-family: var(--font-body)
+  font-size: 12px
+  color: #8CFF88 // Success state
+  animation: fade-in 0.3s ease forwards
+
+  &.error
+    color: #FF5A5A
+
+// --- Footer --- //
+.auth-footer
+  margin-top: auto
+  padding-top: 24px
+  text-align: left
+
+.disclaimer
+  font-family: var(--font-body)
+  font-size: 12px
+  color: rgba(255, 255, 255, 0.4)
+  
+  strong
+    color: var(--white)
+    font-weight: 600
+    cursor: pointer
+    transition: color 0.2s
+    &:hover
+      color: var(--breezely-green)
+
+// --- Animations --- //
+@keyframes fade-in
+  from
+    opacity: 0
+    transform: translateY(4px)
+  to
+    opacity: 1
+    transform: translateY(0)
+
+.fade-in
+  animation: fade-in 0.3s ease forwards
+
+// --- Success State --- //
+.auth-success-state
+  display: flex
+  flex-direction: column
+  align-items: center
+  text-align: center
+  gap: 16px
+  padding-bottom: 32px
+
+.success-icon-wrapper
+  width: 64px
+  height: 64px
+  border-radius: 50%
+  background: rgba(140, 255, 136, 0.1)
+  display: flex
+  align-items: center
+  justify-content: center
+  margin-bottom: 8px
+
+.success-title
+  font-family: var(--font-heading)
+  font-size: 24px
+  color: var(--white)
+
+.success-desc
+  font-family: var(--font-body)
+  font-size: 14px
+  color: rgba(255, 255, 255, 0.6)
+  line-height: 1.6
+  
+  strong
+    color: var(--white)
+
+.text-btn
+  background: transparent
+  border: none
+  color: rgba(255, 255, 255, 0.5)
+  font-family: var(--font-body)
+  font-size: 13px
+  cursor: pointer
+  margin-top: 24px
+  text-decoration: underline
+
+  &:hover
+    color: var(--white)
+
+// --- Mobile Responsiveness --- //
+@media (max-width: 768px)
+  .glass-modal
+    flex-direction: column
+    width: 90%
+    height: auto
+    max-height: 90vh
+    overflow-y: auto
+  
+  .modal-left
+    border-right: none
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05)
+    padding: 32px 24px
+
+  .modal-right
+    padding: 32px 24px

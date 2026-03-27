@@ -1,0 +1,182 @@
+// ===========================
+// Global Navbar Component
+// ===========================
+
+.navbar
+  position: relative
+  z-index: 100
+  display: flex
+  align-items: center
+  justify-content: space-between
+  padding: 28px 48px
+  width: 100%
+
+// --- Logo ---
+.navbar__logo
+  flex-shrink: 0
+
+.navbar__logo-img
+  height: 36px
+  width: auto
+  transition: opacity 0.3s ease
+
+  &:hover
+    opacity: 0.85
+
+// --- Desktop Right Section ---
+.navbar__right
+  display: flex
+  align-items: center
+  gap: 10px
+
+// --- Grouped Pill Container ---
+.navbar__pill
+  display: flex
+  align-items: center
+  gap: 0
+  background: rgba(255, 255, 255, 0.08)
+  border: 1px solid rgba(255, 255, 255, 0.18)
+  border-radius: 100px
+  padding: 4px 6px
+  backdrop-filter: blur(12px)
+  -webkit-backdrop-filter: blur(12px)
+
+.navbar__link
+  font-family: var(--font-body)
+  font-size: 12px
+  font-weight: 600
+  letter-spacing: 0.12em
+  text-transform: uppercase
+  color: var(--white)
+  padding: 9px 20px
+  border-radius: 100px
+  transition: all 0.3s ease
+  white-space: nowrap
+  position: relative
+
+  &:hover
+    background: rgba(255, 255, 255, 0.10)
+
+// --- Sign In Button (dark, separate) ---
+.navbar__signin
+  font-family: var(--font-body)
+  font-size: 12px
+  font-weight: 600
+  letter-spacing: 0.12em
+  text-transform: uppercase
+  color: var(--white)
+  background: var(--black)
+  padding: 13px 26px
+  border-radius: 100px
+  border: 1px solid rgba(255, 255, 255, 0.12)
+  transition: all 0.3s ease
+  white-space: nowrap
+
+  &:hover
+    background: #222
+    border-color: rgba(255, 255, 255, 0.3)
+
+// ===========================
+// Mobile Hamburger
+// ===========================
+.navbar__hamburger
+  display: none
+  flex-direction: column
+  gap: 5px
+  padding: 8px
+  background: transparent
+  border: none
+  cursor: pointer
+  z-index: 200
+
+.navbar__hamburger-line
+  display: block
+  width: 26px
+  height: 2px
+  background: var(--white)
+  border-radius: 2px
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1)
+
+  &.open:nth-child(1)
+    transform: rotate(45deg) translate(5px, 5px)
+
+  &.open:nth-child(2)
+    opacity: 0
+
+  &.open:nth-child(3)
+    transform: rotate(-45deg) translate(5px, -5px)
+
+// ===========================
+// Mobile Menu Overlay
+// ===========================
+.mobile-menu
+  position: fixed
+  inset: 0
+  z-index: 150
+  background: rgba(21, 21, 21, 0.97)
+  backdrop-filter: blur(20px)
+  display: flex
+  align-items: center
+  justify-content: center
+  opacity: 0
+  pointer-events: none
+  transition: opacity 0.4s ease
+
+  &.active
+    opacity: 1
+    pointer-events: all
+
+.mobile-menu__links
+  display: flex
+  flex-direction: column
+  align-items: center
+  gap: 32px
+  list-style: none
+  padding: 0
+  margin: 0
+
+.mobile-menu__link
+  font-family: var(--font-heading)
+  font-size: 28px
+  font-weight: 600
+  color: var(--white)
+  transition: color 0.3s ease
+  text-decoration: none
+
+  &:hover
+    color: var(--breezely-green)
+
+.mobile-menu__signin
+  color: var(--breezely-green) !important
+  border: 1px solid var(--breezely-green)
+  padding: 12px 36px
+  border-radius: 100px
+
+// ===========================
+// Responsive
+// ===========================
+@media (max-width: 1024px)
+  .navbar
+    padding: 24px 32px
+
+  .navbar__link
+    padding: 9px 14px
+    font-size: 11px
+
+  .navbar__signin
+    padding: 11px 20px
+    font-size: 11px
+
+@media (max-width: 768px)
+  .navbar__right
+    display: none
+
+  .navbar__hamburger
+    display: flex
+
+  .navbar
+    padding: 20px 24px
+
+@media (max-width: 480px)
+  .navbar
+    padding: 16px 18px
