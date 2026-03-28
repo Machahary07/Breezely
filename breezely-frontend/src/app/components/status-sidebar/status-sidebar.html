@@ -1,0 +1,21 @@
+<aside class="status-sidebar">
+  <nav class="sidebar-nav">
+    <ul>
+      <li [class.active]="activeSection === 'uptime'" (click)="scrollTo('uptime')">
+        <span class="nav-indicator"></span> Uptime
+      </li>
+      <li [class.active]="activeSection === 'services'" (click)="scrollTo('services')">
+        <span class="nav-indicator"></span> Infrastructure
+      </li>
+      <li [class.active]="activeSection === 'modules'" (click)="scrollTo('modules')">
+        <span class="nav-indicator"></span> Core Modules
+      </li>
+      <li [class.active]="activeSection === 'updates'" (click)="scrollTo('updates')">
+        <span class="nav-indicator"></span> New Updates
+      </li>
+      <li [class.active]="activeSection === 'incidents'" (click)="scrollTo('incidents')">
+        <span class="nav-indicator"></span> Past Incidents
+      </li>
+    </ul>
+  </nav>
+</aside>

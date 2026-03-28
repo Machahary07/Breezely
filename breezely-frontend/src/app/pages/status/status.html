@@ -1,6 +1,10 @@
 <app-navbar></app-navbar>
 
 <main class="page-container">
+  <!-- Sidebar & Updates Widgets -->
+  <app-status-sidebar></app-status-sidebar>
+  <app-status-new-updates></app-status-new-updates>
+
   <div class="status-wrapper">
     
     <!-- Header Hero -->
@@ -16,7 +20,7 @@
     </div>
 
     <!-- Uptime Visualization (Industrial Block Grid) -->
-    <section class="block-grid-section">
+    <section id="uptime" class="block-grid-section">
       <div class="block-grid-header">
         <span class="grid-title">Uptime over past 60 days</span>
         <span class="grid-uptime-text">99.98% uptime</span>
@@ -38,27 +42,74 @@
       </div>
     </section>
 
-    <!-- Services List -->
-    <section class="services-list-section">
-      <h3 class="section-heading">Core Components</h3>
+    <!-- Core Infrastructure -->
+    <section id="services" class="services-list-section">
+      <h3 class="section-heading">Core Infrastructure</h3>
       <div class="services-card">
-        
-        <div class="service-item" *ngFor="let service of services">
+        <div class="service-item" *ngFor="let service of coreServices">
           <span class="service-name">{{ service.name }}</span>
-          <span class="service-status" [class]="service.color">
+          <span class="service-status" [ngClass]="service.color">
             <svg *ngIf="service.color === 'success'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
               <polyline points="22 4 12 14.01 9 11.01"></polyline>
             </svg>
+            <svg *ngIf="service.color === 'warning'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
             {{ service.status }}
           </span>
         </div>
-
       </div>
     </section>
 
+    <!-- Automation Core Modules -->
+    <section id="modules" class="services-list-section">
+      <h3 class="section-heading">Automation Core Modules</h3>
+      <div class="services-card">
+        <div class="service-item module-item" *ngFor="let module of automationModules">
+          <div class="module-info">
+            <span class="service-name">{{ module.name }}</span>
+            <span class="module-description">{{ module.description }}</span>
+          </div>
+          <span class="service-status" [ngClass]="module.color">
+            <svg *ngIf="module.color === 'success'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+            <svg *ngIf="module.color === 'warning'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            {{ module.status }}
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Updates Section -->
+    <section id="updates" class="updates-section">
+      <h3 class="section-heading">New Updates</h3>
+      
+      <div class="incident-card" *ngFor="let update of newUpdates">
+        <div class="incident-header">
+          <span 
+            class="incident-date" 
+            [class.deployed]="update.date.startsWith('Depl')"
+            [class.soon]="update.date.startsWith('Coming')"
+          >{{ update.date }}</span>
+          <span class="incident-badge" [ngClass]="update.badge.toLowerCase()">{{ update.badge }}</span>
+        </div>
+        <h4 class="incident-title">{{ update.title }}</h4>
+        <p class="incident-body">{{ update.description }}</p>
+      </div>
+
+    </section>
+
     <!-- Past Incidents -->
-    <section class="incidents-section">
+    <section id="incidents" class="incidents-section">
       <h3 class="section-heading">Past Incidents</h3>
       
       <div class="incident-card" *ngFor="let incident of pastIncidents">

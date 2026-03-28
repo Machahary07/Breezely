@@ -13,28 +13,7 @@ import { CommonModule } from '@angular/common';
       </div>
     </div>
   `,
-  styles: [`
-    .avatar-container {
-      border-radius: 8px;
-      overflow: hidden;
-      background: var(--breezely-green);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    .placeholder {
-      color: var(--black);
-      font-family: var(--font-heading);
-      font-weight: 700;
-      font-size: 14px;
-    }
-  `]
+  styleUrl: './user-avatar.sass'
 })
 export class UserAvatarComponent {
   @Input() photoURL: string | null = null;

@@ -1,0 +1,38 @@
+:host
+  display: none
+
+  @media (min-width: 1300px)
+    display: block
+    position: fixed
+    top: 120px
+    right: max(24px, calc(50vw - 460px - 260px))
+    width: 220px
+    z-index: 50
+
+.updates-container
+  display: flex
+  flex-direction: column
+  gap: 12px
+
+.update-card
+  padding: 16px
+  border-radius: 12px
+  background: rgba(255, 255, 255, 0.03)
+  border: 1px solid rgba(255, 255, 255, 0.08)
+
+.update-tag
+  display: inline-block
+  font-family: var(--font-body)
+  font-size: 10px
+  font-weight: 800
+  text-transform: uppercase
+  color: var(--breezely-green)
+  letter-spacing: 0.05em
+  margin-bottom: 6px
+
+.update-desc
+  margin: 0
+  font-family: var(--font-body)
+  font-size: 13px
+  color: rgba(255, 255, 255, 0.7)
+  line-height: 1.4

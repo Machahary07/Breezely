@@ -9,6 +9,7 @@
   display: flex
   flex-direction: column
   align-items: center
+  position: relative
   padding: 120px 24px 80px 24px
 
 .status-wrapper
@@ -17,6 +18,7 @@
   display: flex
   flex-direction: column
   gap: 32px
+  flex: 1
 
 // --- Header --- //
 .status-header
@@ -196,8 +198,27 @@
 
   &.success
     color: var(--breezely-green)
+  
+  &.warning
+    color: #ffb142
 
-// --- Incidents Section --- //
+// --- Module Info --- //
+.module-item
+  align-items: flex-start !important
+
+.module-info
+  display: flex
+  flex-direction: column
+  gap: 4px
+
+.module-description
+  font-family: var(--font-body)
+  font-size: 13px
+  color: rgba(255, 255, 255, 0.4)
+  font-weight: 400
+
+// --- Sections --- //
+.updates-section,
 .incidents-section
   margin-top: 32px
   display: flex
@@ -215,6 +236,7 @@
 .incident-header
   display: flex
   align-items: center
+  justify-content: space-between
   gap: 16px
   margin-bottom: 12px
 
@@ -222,6 +244,14 @@
   font-family: var(--font-body)
   font-size: 13px
   color: rgba(255, 255, 255, 0.5)
+
+  &.deployed
+    color: var(--breezely-green)
+    opacity: 0.8
+  
+  &.soon
+    color: #ffb142
+    opacity: 0.8
 
 .incident-badge
   padding: 4px 10px
@@ -233,6 +263,10 @@
   letter-spacing: 0.1em
 
   &.resolved
+    background: rgba(140, 255, 136, 0.1)
+    color: var(--breezely-green)
+
+  &.feature, &.visual, &.service, &.system
     background: rgba(255, 255, 255, 0.1)
     color: var(--white)
 
