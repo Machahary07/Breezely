@@ -1,0 +1,61 @@
+.sidebar-icon-btn
+  display: flex
+  align-items: center
+  gap: 12px
+  width: 100%
+  padding: 10px 12px
+  background: transparent
+  border: none
+  border-radius: 8px
+  color: rgba(255, 255, 255, 0.5)
+  cursor: pointer
+  transition: all 0.2s ease
+  text-align: left
+  font-family: var(--font-body)
+  font-size: 14px
+  font-weight: 500
+  white-space: nowrap
+  overflow: hidden
+  text-transform: none
+  letter-spacing: 0
+
+  &:hover
+    background: rgba(255, 255, 255, 0.06)
+    color: rgba(255, 255, 255, 0.9)
+
+  &.active
+    background: rgba(255, 255, 255, 0.08)
+    color: var(--white)
+    font-weight: 600
+
+  &.danger
+    &:hover
+      background: rgba(255, 80, 80, 0.1)
+      color: #ff6b6b
+
+  &.icon-only
+    padding: 10px
+    justify-content: center
+    width: 40px
+    height: 40px
+    margin: 0 auto
+
+    .btn-label
+      display: none
+
+  svg
+    flex-shrink: 0
+    opacity: 0.8
+    transition: transform 0.2s ease
+
+  &:hover svg
+    opacity: 1
+
+  &.active svg
+    opacity: 1
+    color: var(--breezely-green)
+
+.btn-label
+  flex: 1
+  opacity: 1
+  transition: opacity 0.2s ease

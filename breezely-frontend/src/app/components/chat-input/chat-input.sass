@@ -1,0 +1,156 @@
+.chat-input-container
+  display: flex
+  flex-direction: column
+  align-items: center
+  justify-content: center
+  width: 100%
+  max-width: 680px
+  margin: 0 auto
+  padding: 40px 24px
+  animation: fadeIn 0.8s ease backwards
+
+@keyframes fadeIn
+  from
+    opacity: 0
+    transform: translateY(12px)
+  to
+    opacity: 1
+    transform: translateY(0)
+
+.greeting-area
+  text-align: center
+  margin-bottom: 32px
+
+.greeting-title
+  font-family: var(--font-heading)
+  font-size: 32px
+  font-weight: 700
+  color: var(--white)
+  margin-bottom: 8px
+
+.greeting-subtitle
+  font-family: var(--font-body)
+  font-size: 16px
+  color: rgba(255, 255, 255, 0.6)
+
+.chat-box-wrapper
+  width: 100%
+  margin-bottom: 24px
+
+.chat-box
+  display: flex
+  flex-direction: column
+  background: rgba(255, 255, 255, 0.04)
+  border: 1.5px solid rgba(255, 255, 255, 0.08)
+  border-radius: 16px
+  padding: 16px
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1)
+
+  &:focus-within
+    background: rgba(255, 255, 255, 0.06)
+    border-color: rgba(255, 255, 255, 0.15)
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4)
+
+  &.has-text
+    border-color: rgba(140, 255, 136, 0.2)
+    background: rgba(140, 255, 136, 0.02)
+
+.chat-textarea
+  background: transparent
+  border: none
+  outline: none
+  color: var(--white)
+  font-family: var(--font-body)
+  font-size: 15px
+  line-height: 1.5
+  resize: none
+  width: 100%
+  min-height: 24px
+  max-height: 200px
+  margin-bottom: 12px
+
+  &::placeholder
+    color: rgba(255, 255, 255, 0.3)
+
+.chat-actions
+  display: flex
+  align-items: center
+  justify-content: space-between
+  padding-top: 8px
+
+.action-btn
+  display: flex
+  align-items: center
+  justify-content: center
+  background: transparent
+  border: none
+  border-radius: 10px
+  cursor: pointer
+  transition: all 0.2s ease
+  color: rgba(255, 255, 255, 0.4)
+
+  &:hover:not(:disabled)
+    background: rgba(255, 255, 255, 0.06)
+    color: var(--white)
+
+  &.attach-btn
+    width: 44px
+    height: 44px
+    border-radius: 12px
+
+  &.send-btn
+    width: 48px
+    height: 48px
+    background: rgba(255, 255, 255, 0.05)
+    border-radius: 14px
+    
+    &:not(:disabled):hover
+      background: var(--breezely-green)
+      color: var(--black)
+      transform: scale(1.05)
+
+    &:disabled
+      opacity: 0.3
+      cursor: default
+
+.quick-chips
+  display: flex
+  flex-wrap: wrap
+  justify-content: center
+  gap: 10px
+  width: 100%
+
+.chip
+  display: flex
+  align-items: center
+  gap: 8px
+  padding: 8px 16px
+  background: rgba(255, 255, 255, 0.04)
+  border: 1px solid rgba(255, 255, 255, 0.1)
+  border-radius: 100px
+  cursor: pointer
+  transition: all 0.2s ease
+  color: rgba(255, 255, 255, 0.75)
+  font-family: var(--font-body)
+  font-size: 13px
+  font-weight: 500
+
+  &:hover
+    background: rgba(255, 255, 255, 0.08)
+    border-color: rgba(255, 255, 255, 0.2)
+    color: var(--white)
+    transform: translateY(-1px)
+
+.chip-icon
+  font-size: 14px
+
+@media (max-width: 640px)
+  .greeting-title
+    font-size: 24px
+
+  .quick-chips
+    gap: 8px
+
+  .chip
+    padding: 6px 14px
+    font-size: 12px

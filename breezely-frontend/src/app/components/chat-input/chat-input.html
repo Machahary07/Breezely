@@ -1,0 +1,48 @@
+<div class="chat-input-container">
+  <!-- Greeting -->
+  <div class="greeting-area">
+    <h1 class="greeting-title">{{ greeting }}, {{ userFirstname }}</h1>
+    <p class="greeting-subtitle">What would you like to automate today?</p>
+  </div>
+
+  <!-- Chat Box -->
+  <div class="chat-box-wrapper">
+    <div class="chat-box" [class.has-text]="message.length > 0">
+      <textarea
+        #textarea
+        [(ngModel)]="message"
+        (input)="onInput()"
+        (keydown)="onKeyDown($event)"
+        [placeholder]="placeholder"
+        class="chat-textarea"
+        rows="1"
+      ></textarea>
+      
+      <div class="chat-actions">
+        <button class="action-btn attach-btn" title="Attach file">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+        </button>
+        <button 
+          class="action-btn send-btn" 
+          [disabled]="!message.trim()" 
+          (click)="onSend()"
+          title="Send message"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Chips -->
+  <div class="quick-chips">
+    <button class="chip" *ngFor="let chip of quickChips" (click)="useChip(chip)">
+      <span class="chip-icon">{{ chip.icon }}</span>
+      <span class="chip-label">{{ chip.label }}</span>
+    </button>
+  </div>
+</div>
