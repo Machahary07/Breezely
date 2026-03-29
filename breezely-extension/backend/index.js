@@ -50,8 +50,7 @@ app.post('/chat', async (req, res) => {
             result = await chatWithOpenAI(messages, page_content, elements, url, title);
         } else {
             // Default: Gemini
-            if (apiKey) process.env.GEMINI_API_KEY = apiKey;
-            result = await chatWithGemini(messages, page_content, elements, url, title);
+            result = await chatWithGemini(messages, page_content, elements, url, title, apiKey);
         }
 
         res.json({

@@ -11,7 +11,11 @@ const ai = new GoogleGenAI({
     apiKey: GEMINI_API_KEY,
 });
 
-async function chatWithGemini(messagesArray = [], pageContent = "", elements = {}, url = "", title = "") {
+async function chatWithGemini(messagesArray = [], pageContent = "", elements = {}, url = "", title = "", apiKey = null) {
+    const GEMINI_API_KEY = apiKey || process.env.GEMINI_API_KEY;
+    const ai = new GoogleGenAI({
+        apiKey: GEMINI_API_KEY,
+    });
 
 
     const apiMessages = [];
@@ -132,8 +136,7 @@ CRITICAL INSTRUCTION: If the COMMAND above is a general knowledge question (e.g.
         return JSON.parse(content);
 
     } catch (error) {
-        console.error("Gemini API Error:", error);
-        return { action: "ANSWER", text: "1e may be incorrect. Please verify important information." };
+        return { action: "ANSWER", text: "Breezely encountered an error. Please verify your API key." };
     }
 }
 

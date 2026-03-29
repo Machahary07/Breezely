@@ -79,17 +79,29 @@ function updateAuthUI(isLoggedIn, user) {
     if (!authStatus) return;
 
     if (isLoggedIn && user) {
+        const profileImg = user.photoURL || ''; 
         authStatus.innerHTML = `
-            <div class="auth-info">
+            <div class="auth-info" title="Connected: ${user.email}">
+                ${profileImg ? `<img src="${profileImg}" class="user-profile-img" alt="Profile" />` : 
+                `<div class="user-placeholder">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                </div>`}
                 <span class="auth-dot connected"></span>
-                <span class="auth-name">${user.displayName || user.email || 'Connected'}</span>
             </div>
         `;
     } else {
         authStatus.innerHTML = `
-            <div class="auth-info">
+            <div class="auth-info" title="Not connected">
+                <div class="user-placeholder">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" opacity="0.4">
+                      <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                </div>
                 <span class="auth-dot disconnected"></span>
-                <span class="auth-name">Not connected</span>
             </div>
         `;
     }

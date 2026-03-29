@@ -880,11 +880,24 @@ function showOnboardingGuides() {
 // Auto-Restore Persistent Translation and Model State logic
 // -------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', async () => {
-    // Show guides on first load
-    chrome.storage.local.get(['guidesShown'], (res) => {
-        if (!res.guidesShown) {
-            showOnboardingGuides();
-            chrome.storage.local.set({ guidesShown: true });
+    // Listen for real-time key changes from the console relay (via content.js)
+    chrome.runtime.onMessage.addListener(async (message) => {
+        if (message.type === 'BREEZELY_API_KEYS_SYNC_RELAY') {
+            const { keys } = message;
+            if (keys.gemini) await chrome.storage.local.set({ apiKey_gemini: keys.gemini });
+            else await chrome.storage.local.remove('apiKey_gemini');
+            
+            if (keys.claude) await chrome.storage.local.set({ apiKey_claude: keys.claude });
+            else await chrome.storage.local.remove('apiKey_claude');
+            
+            if (keys.openai) await chrome.storage.local.set({ apiKey_openai: keys.openai });
+            else await chrome.storage.local.remove('apiKey_openai');
+            
+            console.log("Breezely Assistant: Syncing keys from Console Relay.");
+            updateKeyStatus();
+            
+            // Add a subtle confirmation message
+            addMessage("API keys synced from your workspace.", "ai", "success");
         }
     });
 

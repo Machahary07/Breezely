@@ -41,20 +41,13 @@ if (!window.__1e_content_script_injected) {
         if (event.data.type === 'BREEZELY_API_KEYS_SYNC') {
             const keys = event.data.keys;
             
-            try {
-                if (keys.gemini) await chrome.storage.local.set({ apiKey_gemini: keys.gemini });
-                else await chrome.storage.local.remove('apiKey_gemini');
-                
-                if (keys.claude) await chrome.storage.local.set({ apiKey_claude: keys.claude });
-                else await chrome.storage.local.remove('apiKey_claude');
-                
-                if (keys.openai) await chrome.storage.local.set({ apiKey_openai: keys.openai });
-                else await chrome.storage.local.remove('apiKey_openai');
-                
-                console.log("Breezely Agent: Received and stored API keys from console.", keys);
-            } catch (error) {
-                console.error("Breezely Agent: Failed to sync API keys", error);
-            }
+            // Relay keys to the extension background/sidebar 
+            // Content scripts cannot directly access chrome.storage.local in some contexts
+            chrome.runtime.sendMessage({ 
+                type: 'BREEZELY_API_KEYS_SYNC_RELAY', 
+                keys: keys 
+            });
+            console.log("Breezely Agent: Relaying API keys from console to extension.");
         }
     });
 }
