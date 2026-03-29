@@ -17,20 +17,26 @@ export class StatusComponent {
 
   coreServices = [
     { name: 'Breezely Web App Dashboard', status: 'Operational', color: 'success' },
-    { name: 'Intelligent Automation Core (AI)', status: 'In Development', color: 'warning' },
-    { name: 'Browser Extension Sync API', status: 'In Development', color: 'warning' },
+    { name: 'Intelligent Automation Core (AI)', status: 'Operational', color: 'success' },
+    { name: 'Local Extension Sync Engine', status: 'Operational', color: 'success' },
     { name: 'Firebase Authentication', status: 'Operational', color: 'success' },
     { name: 'Cloud Infrastructure / Hosting', status: 'Operational', color: 'success' }
   ];
 
   automationModules = [
-    { name: 'Breeze (Browser Extension)', status: 'In Development', description: 'Script execution status updates', color: 'warning' },
+    { name: 'Breeze (Browser Extension)', status: 'Operational', description: 'Serverless AI agent execution', color: 'success' },
     { name: 'Canvas (Cloud Browser)', status: 'In Development', description: 'Live browser stream + chat responses', color: 'warning' },
     { name: 'Flows (Your Automations)', status: 'In Development', description: 'Flow run progress, step-by-step logs', color: 'warning' },
     { name: 'Playbooks (Community Marketplace)', status: 'In Development', description: 'Live install + deployment status', color: 'warning' }
   ];
 
   newUpdates = [
+    {
+      date: 'Deployed',
+      title: 'Serverless Extension Architecture',
+      badge: 'Architecture',
+      description: 'Major breakthrough: The Breezely Extension now operates with a pure serverless architecture! All AI processing logic (Gemini, Claude, OpenAI) and Bhashini translations are handled natively within the browser, eliminating the need for a local Node.js backend.'
+    },
     {
       date: 'Deployed',
       title: 'Structural Component Refactoring',
@@ -48,12 +54,6 @@ export class StatusComponent {
       title: 'Premium Control Console v1.0',
       badge: 'Feature',
       description: 'The new Claude-inspired console environment is now live! It features a highly performant CSS-only responsive sidebar, a comprehensive dual-pane Customization drawer for storing provider API Keys, and sleek integrated controls for Incognito and Breezely extensions.'
-    },
-    {
-      date: 'Coming Soon',
-      title: 'Breeze (Breezely Extension) Updates',
-      badge: 'Service',
-      description: 'Real-time script execution status updates directly within the extension to keep you informed of automation progress.'
     },
     {
       date: 'Coming Soon',

@@ -8,22 +8,15 @@ const speechLang = document.getElementById('speech-lang');
 const equalizer = document.getElementById('mic-equalizer');
 const eqBars = equalizer ? equalizer.querySelectorAll('.bar') : [];
 
-const BACKEND_URL = 'http://127.0.0.1:8000';
-
 // Listen for batch translation requests from content script (dynamic content)
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.type === 'TRANSLATE_BATCH_REQUEST') {
-        fetch(`${BACKEND_URL}/translate`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ texts: request.texts, targetLanguage: request.targetLang })
-        })
-        .then(res => res.json())
-        .then(data => sendResponse({ translations: data.translated_texts }))
-        .catch(err => {
-            console.error("Batch translation error:", err);
-            sendResponse({ translations: null });
-        });
+        translateTextsBhashini(request.texts, request.targetLang)
+            .then(translations => sendResponse({ translations }))
+            .catch(err => {
+                console.error("Batch translation error:", err);
+                sendResponse({ translations: null });
+            });
         return true; // async
     }
 });
@@ -302,17 +295,11 @@ async function performTranslation(targetLang, langName) {
             return;
         }
 
-        const response = await fetch(`${BACKEND_URL}/translate`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            signal: signal,
-            body: JSON.stringify({ texts: texts, targetLanguage: targetLang })
-        });
+        const translatedTexts = await translateTextsBhashini(texts, targetLang);
 
-        const data = await response.json();
-        if (data.translated_texts) {
+        if (translatedTexts && translatedTexts.length > 0) {
             addMessage("Static content translated. Dynamic scanning active.", "ai", "translation-success");
-            await replacePageTextNodes(data.translated_texts);
+            await replacePageTextNodes(translatedTexts);
 
             // Notify content script to start dynamic observer
             const tab = await getActiveTab();
@@ -460,28 +447,21 @@ async function runAgentLoop() {
             const apiKey = storedKeys['apiKey_' + selectedModel] || null;
 
             const tFetch = Date.now();
-            const response = await fetch(`${BACKEND_URL}/chat`, {
-                method: 'POST',
-                // OPT: keepalive reuses the TCP connection across loop turns
-                keepalive: true,
-                headers: { 'Content-Type': 'application/json', 'Connection': 'keep-alive' },
-                signal: currentAbortController.signal,
-                body: JSON.stringify({
-                    messages: chatHistory,
-                    page_content: context.page_content,
-                    elements: context.elements,
-                    url: context.url,
-                    title: context.title,
-                    model: selectedModel,
-                    apiKey: apiKey
-                })
-            });
+            
+            currentAbortController = new AbortController();
+            
+            let data;
+            if (selectedModel === 'claude') {
+                data = await chatWithClaude(chatHistory, context.page_content, context.elements, context.url, context.title, apiKey, currentAbortController.signal);
+            } else if (selectedModel === 'openai') {
+                data = await chatWithOpenAI(chatHistory, context.page_content, context.elements, context.url, context.title, apiKey, currentAbortController.signal);
+            } else {
+                data = await chatWithGemini(chatHistory, context.page_content, context.elements, context.url, context.title, apiKey, currentAbortController.signal);
+            }
 
             currentAbortController = null;
 
-            if (!response.ok) throw new Error('Network response was not ok');
-            const data = await response.json();
-            console.log(`[Breezely ⚡] /chat round-trip: ${Date.now() - tFetch}ms | action: ${data.action}`);
+            console.log(`[Breezely ⚡] AI round-trip: ${Date.now() - tFetch}ms | action: ${data.action}`);
 
             // Log assistant's action into history 
             // Only add valid string content for Sarvam's prompt engine

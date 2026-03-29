@@ -10,6 +10,7 @@ import { CommonModule } from '@angular/common';
 })
 export class StatusNewUpdatesComponent {
   updates = [
+    { title: 'Serverless Extension Architecture', description: 'The Breezely Extension now operates with a pure serverless architecture! AI logic and Bhashini translations are managed nativesly within the browser.' },
     { title: 'Premium Control Console v1.0', description: 'The new Claude-inspired console environment is now live! It features a highly performant CSS-only responsive sidebar, a comprehensive dual-pane Customization drawer for storing provider API Keys, and integrated controls for Incognito and Breezely extensions.' },
     { title: 'Improved Status Page', description: 'Modernized Status Page with sleek new sidebar and custom scrollbar UI.' }
   ];
