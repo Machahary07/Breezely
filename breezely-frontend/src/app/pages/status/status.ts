@@ -17,17 +17,17 @@ export class StatusComponent {
 
   coreServices = [
     { name: 'Breezely Web App Dashboard', status: 'Operational', color: 'success' },
-    { name: 'Intelligent Automation Core (AI)', status: 'Operational', color: 'success' },
-    { name: 'Browser Extension Sync API', status: 'Operational', color: 'success' },
+    { name: 'Intelligent Automation Core (AI)', status: 'In Development', color: 'warning' },
+    { name: 'Browser Extension Sync API', status: 'In Development', color: 'warning' },
     { name: 'Firebase Authentication', status: 'Operational', color: 'success' },
     { name: 'Cloud Infrastructure / Hosting', status: 'Operational', color: 'success' }
   ];
 
   automationModules = [
-    { name: 'Breeze (Browser Extension)', status: 'Operational', description: 'Script execution status updates', color: 'success' },
+    { name: 'Breeze (Browser Extension)', status: 'In Development', description: 'Script execution status updates', color: 'warning' },
     { name: 'Canvas (Cloud Browser)', status: 'In Development', description: 'Live browser stream + chat responses', color: 'warning' },
-    { name: 'Flows (Your Automations)', status: 'Operational', description: 'Flow run progress, step-by-step logs', color: 'success' },
-    { name: 'Playbooks (Community Marketplace)', status: 'Maintenance', description: 'Live install + deployment status', color: 'warning' }
+    { name: 'Flows (Your Automations)', status: 'In Development', description: 'Flow run progress, step-by-step logs', color: 'warning' },
+    { name: 'Playbooks (Community Marketplace)', status: 'In Development', description: 'Live install + deployment status', color: 'warning' }
   ];
 
   newUpdates = [
@@ -44,10 +44,10 @@ export class StatusComponent {
       description: 'Unified brand identity with a custom thin-glass navbar, a minimalist "Green Glow" thumb scrollbar, and a sleek, hand-crafted White Arrow custom cursor system pointing at -125°.'
     },
     {
-      date: 'Coming Soon',
-      title: 'Premium Control Console',
+      date: 'Deployed',
+      title: 'Premium Control Console v1.0',
       badge: 'Feature',
-      description: 'A completely new, Claude-inspired console environment for managing your browser automations. The update will introduce a responsive GSAP-animated sidebar, advanced chat inputs, and a cohesive dark-themed UI.'
+      description: 'The new Claude-inspired console environment is now live! It features a highly performant CSS-only responsive sidebar, a comprehensive dual-pane Customization drawer for storing provider API Keys, and sleek integrated controls for Incognito and Breezely extensions.'
     },
     {
       date: 'Coming Soon',

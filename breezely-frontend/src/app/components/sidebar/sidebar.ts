@@ -21,8 +21,10 @@ export class SidebarComponent implements OnChanges {
   @Input() user: any = null;
   @Input() recentChats: ChatItem[] = [];
   @Input() activeChatId: string | null = null;
+  @Input() customizeActive = false;
   
   @Output() toggle = new EventEmitter<void>();
+  @Output() customize = new EventEmitter<void>();
   @Output() newChat = new EventEmitter<void>();
   @Output() search = new EventEmitter<void>();
   @Output() logout = new EventEmitter<void>();
@@ -35,22 +37,15 @@ export class SidebarComponent implements OnChanges {
   recentsOpen = true;
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes['collapsed'] && !changes['collapsed'].firstChange) {
-      this.animateSidebar();
-    }
-  }
-
-  animateSidebar() {
-    const width = this.collapsed ? 68 : 260;
-    gsap.to(this.sidebarElement.nativeElement, {
-      width: width,
-      duration: 0.4,
-      ease: 'power3.inOut'
-    });
+    // Left empty since we moved to CSS only
   }
 
   onToggle() {
     this.toggle.emit();
+  }
+
+  onCustomize() {
+    this.customize.emit();
   }
 
   onNewChat() {

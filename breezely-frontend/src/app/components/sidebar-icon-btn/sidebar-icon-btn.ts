@@ -10,7 +10,7 @@ import { CommonModule } from '@angular/common';
 })
 export class SidebarIconBtnComponent {
   @Input() label = '';
-  @Input() icon: 'plus' | 'search' | 'settings' | 'chat' | 'flow' | 'book' | 'logout' = 'plus';
+  @Input() icon: 'plus' | 'search' | 'settings' | 'briefcase' | 'chat' | 'flow' | 'book' | 'logout' = 'plus';
   @Input() active = false;
   @Input() danger = false;
   @Input() showLabel = true;

@@ -32,6 +32,10 @@ export class ConsoleComponent implements OnInit {
   activeChatId: string | null = null;
   recentChats: ChatItem[] = [];
 
+  // Customize state
+  showCustomize: boolean = false;
+  activeCustomizeTab: string = 'api-keys';
+
   constructor(
     private router: Router,
     @Inject(PLATFORM_ID) private platformId: Object,
@@ -59,8 +63,13 @@ export class ConsoleComponent implements OnInit {
     this.sidebarCollapsed = !this.sidebarCollapsed;
   }
 
+  onToggleCustomize() {
+    this.showCustomize = !this.showCustomize;
+  }
+
   onNewChat() {
     this.activeChatId = null;
+    this.showCustomize = false;
   }
 
   onSearch() {
@@ -69,6 +78,7 @@ export class ConsoleComponent implements OnInit {
 
   onSelectChat(id: string) {
     this.activeChatId = id;
+    this.showCustomize = false;
   }
 
   onSendMessage(text: string) {

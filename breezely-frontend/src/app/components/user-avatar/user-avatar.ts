@@ -18,7 +18,7 @@ import { CommonModule } from '@angular/common';
 export class UserAvatarComponent {
   @Input() photoURL: string | null = null;
   @Input() name: string = '';
-  @Input() size: number = 32;
+  @Input() size: number = 28;
 
   getInitial() {
     return this.name ? this.name.charAt(0).toUpperCase() : 'B';
