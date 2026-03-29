@@ -312,7 +312,7 @@ async function performTranslation(targetLang, langName) {
             console.log('Translation aborted.');
             return;
         }
-        addMessage("Translation failed. 1e may be incorrect. Please verify connection.", "ai", "error");
+        addMessage(`Translation failed. The ${targetLang} service may be offline. Please verify connection.`, "ai", "error");
         console.error(error);
         translateLang.value = "";
     } finally {
@@ -558,7 +558,9 @@ async function runAgentLoop() {
         } else {
             console.error('Chat error:', error);
             removeElement(typingId);
-            addMessage("1e encountered an error connecting to the backend. Please verify your connection.", 'ai', 'error');
+            const modelSelect = document.getElementById('model-select');
+            const selectedModel = modelSelect ? modelSelect.options[modelSelect.selectedIndex].text : 'Breezely';
+            addMessage(`${selectedModel} encountered an error connecting to the backend. Please verify your connection.`, 'ai', 'error');
         }
 
         // On error, let the user retry
