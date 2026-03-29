@@ -310,7 +310,6 @@
   width: 100%
 
   input
-    width: 100%
     background: rgba(0, 0, 0, 0.3)
     border: 1px solid rgba(255, 255, 255, 0.1)
     border-radius: 8px
@@ -320,15 +319,23 @@
     font-size: 14px
     color: rgba(255, 255, 255, 0.8)
     transition: all 0.2s ease
+    width: 100%
 
-    &::placeholder
-      color: rgba(255, 255, 255, 0.3)
-      font-family: monospace
+.input-wrapper-group
+  display: flex
+  gap: 12px
+  width: 100%
 
-    &:focus
-      outline: none
-      border-color: rgba(255, 255, 255, 0.3)
-      background: rgba(0, 0, 0, 0.5)
+  .input-wrapper
+    flex: 2
+
+    &.model-id
+      flex: 1
+
+      input
+        font-family: var(--font-body)
+        font-size: 13px
+        letter-spacing: 0
 
 .visibility-btn
   position: absolute

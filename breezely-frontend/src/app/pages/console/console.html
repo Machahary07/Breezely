@@ -112,23 +112,36 @@
                 </div>
 
                 <div class="key-body">
-                  <div class="input-wrapper">
-                    <!-- Key exists but hidden -->
-                    <input *ngIf="apiKeys[provider].status === 'active' && !visibleKeys[provider]" 
-                           type="password" value="••••••••••••••••••••••••" readonly>
-                    
-                    <!-- Key exists and visible -->
-                    <input *ngIf="apiKeys[provider].status === 'active' && visibleKeys[provider]" 
-                           type="text" [value]="apiKeys[provider].key" readonly>
-                    
-                    <!-- New Key Input -->
-                    <input *ngIf="apiKeys[provider].status === 'inactive'" 
-                           type="password" [placeholder]="'Enter ' + provider + ' API key...'" 
-                           [(ngModel)]="editingKeys[provider]">
+                  <div class="input-wrapper-group">
+                    <div class="input-wrapper">
+                      <!-- Key exists but hidden -->
+                      <input *ngIf="apiKeys[provider].status === 'active' && !visibleKeys[provider]" 
+                             type="password" value="••••••••••••••••••••••••" readonly>
+                      
+                      <!-- Key exists and visible -->
+                      <input *ngIf="apiKeys[provider].status === 'active' && visibleKeys[provider]" 
+                             type="text" [value]="apiKeys[provider].key" readonly>
+                      
+                      <!-- New Key Input -->
+                      <input *ngIf="apiKeys[provider].status === 'inactive'" 
+                             type="password" [placeholder]="'Enter ' + provider + ' API key...'" 
+                             [(ngModel)]="editingKeys[provider].key">
 
-                    <button class="visibility-btn" *ngIf="apiKeys[provider].status === 'active'" (click)="toggleKeyVisibility(provider)">
-                      <fa-icon [icon]="visibleKeys[provider] ? faEyeSlash : faEye"></fa-icon>
-                    </button>
+                      <button class="visibility-btn" *ngIf="apiKeys[provider].status === 'active'" (click)="toggleKeyVisibility(provider)">
+                        <fa-icon [icon]="visibleKeys[provider] ? faEyeSlash : faEye"></fa-icon>
+                      </button>
+                    </div>
+
+                    <div class="input-wrapper model-id">
+                      <!-- Model ID exists -->
+                      <input *ngIf="apiKeys[provider].status === 'active'" 
+                             type="text" [value]="apiKeys[provider].modelId" readonly>
+                      
+                      <!-- New Model ID Input -->
+                      <input *ngIf="apiKeys[provider].status === 'inactive'" 
+                             type="text" [placeholder]="'Enter model ID (e.g. ' + (provider === 'gemini' ? 'gemini-1.5-flash' : (provider === 'openai' ? 'gpt-4o' : 'claude-3-5-sonnet-latest')) + ')...'" 
+                             [(ngModel)]="editingKeys[provider].modelId">
+                    </div>
                   </div>
 
                   <div class="action-buttons">

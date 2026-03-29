@@ -24,6 +24,7 @@ interface ChatItem {
 
 interface ApiKeyData {
   key: string;
+  modelId: string;
   status: 'active' | 'inactive';
   lastUpdated: any;
 }
@@ -66,9 +67,9 @@ export class ConsoleComponent implements OnInit, OnDestroy {
 
   // API Keys state
   apiKeys: { [key: string]: ApiKeyData } = {
-    openai: { key: '', status: 'inactive', lastUpdated: null },
-    claude: { key: '', status: 'inactive', lastUpdated: null },
-    gemini: { key: '', status: 'inactive', lastUpdated: null }
+    openai: { key: '', modelId: 'gpt-4o', status: 'inactive', lastUpdated: null },
+    claude: { key: '', modelId: 'claude-3-5-sonnet-latest', status: 'inactive', lastUpdated: null },
+    gemini: { key: '', modelId: 'gemini-1.5-flash', status: 'inactive', lastUpdated: null }
   };
   
   // Visibility toggles
@@ -79,10 +80,10 @@ export class ConsoleComponent implements OnInit, OnDestroy {
   };
 
   // Editing state
-  editingKeys: { [key: string]: string } = {
-    openai: '',
-    claude: '',
-    gemini: ''
+  editingKeys: { [key: string]: { key: string, modelId: string } } = {
+    openai: { key: '', modelId: 'gpt-4o' },
+    claude: { key: '', modelId: 'claude-3-5-sonnet-latest' },
+    gemini: { key: '', modelId: 'gemini-1.5-flash' }
   };
 
   constructor(
@@ -156,12 +157,13 @@ export class ConsoleComponent implements OnInit, OnDestroy {
         Object.keys(this.apiKeys).forEach(provider => {
           if (data[provider]) {
             this.apiKeys[provider] = {
-              key: data[provider],
+              key: data[provider].key || data[provider], // Migrate old string format if needed
+              modelId: data[provider].modelId || this.apiKeys[provider].modelId,
               status: 'active',
               lastUpdated: new Date()
             };
           } else {
-            this.apiKeys[provider] = { key: '', status: 'inactive', lastUpdated: null };
+            this.apiKeys[provider] = { key: '', modelId: this.apiKeys[provider].modelId, status: 'inactive', lastUpdated: null };
           }
         });
         this.cdr.detectChanges();
@@ -186,15 +188,18 @@ export class ConsoleComponent implements OnInit, OnDestroy {
   }
 
   async onSaveKey(provider: string) {
-    if (!this.user || !this.editingKeys[provider]) return;
+    if (!this.user || !this.editingKeys[provider].key) return;
 
     try {
       const userKeysRef = doc(db, 'users', this.user.uid, 'settings', 'credentials');
       await setDoc(userKeysRef, {
-        [provider]: this.editingKeys[provider]
+        [provider]: {
+          key: this.editingKeys[provider].key,
+          modelId: this.editingKeys[provider].modelId
+        }
       }, { merge: true });
       
-      this.editingKeys[provider] = ''; // Reset input
+      this.editingKeys[provider].key = ''; // Reset input
       this.cdr.detectChanges();
     } catch (error) {
       console.error('Error saving API key:', error);

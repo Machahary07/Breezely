@@ -406,8 +406,21 @@ async function runAgentLoop() {
     try {
         while (isAgentRunning && !userRequestedStop) {
 
-            // 1. Extract context from current tab
-            const context = await getPageContext();
+            const userHistory = chatHistory.filter(m => m.role === 'user');
+            const lastUserMsg = userHistory.length > 0 ? userHistory[userHistory.length - 1].content : "";
+            const isAutomationTask = /click|scroll|type|navigate|translate|this page|on here|fill|button|read|find/i.test(lastUserMsg);
+
+            // 1. Extract context ONLY if it's likely an automation task
+            let context = { page_content: "", elements: {}, url: "", title: "" };
+            if (isAutomationTask) {
+                context = await getPageContext();
+            } else {
+                const tab = await getActiveTab();
+                if (tab) {
+                    context.url = tab.url;
+                    context.title = tab.title;
+                }
+            }
 
             // 2. Send history and context to backend
             const modelSelect = document.getElementById('model-select');
