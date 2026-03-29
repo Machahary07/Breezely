@@ -7,9 +7,9 @@ import { getAuth, User, onAuthStateChanged, signOut } from 'firebase/auth';
 import { app, db } from '../../../firebaseConfig';
 import { doc, setDoc, onSnapshot } from 'firebase/firestore';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faOpenai, faGoogle } from '@fortawesome/free-brands-svg-icons';
+import { faOpenai } from '@fortawesome/free-brands-svg-icons';
 import { faEye, faEyeSlash, faCheck, faTrash, faPlus, faBrain, faBolt } from '@fortawesome/free-solid-svg-icons';
-import * as SimpleIcons from 'simple-icons';
+import { siGooglegemini, siClaude } from 'simple-icons';
 
 // Import new components
 import { SidebarComponent } from '../../components/sidebar/sidebar';
@@ -37,7 +37,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
   // Icons
   faOpenai = faOpenai;
   faAnthropic = faBrain; 
-  faGemini = faGoogle;
+
   faEye = faEye;
   faEyeSlash = faEyeSlash;
   faCheck = faCheck;
@@ -88,8 +88,14 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     private sanitizer: DomSanitizer
   ) {}
 
+  // Simple Icons map for provider icons
+  private simpleIconsMap: { [key: string]: any } = {
+    'siGooglegemini': siGooglegemini,
+    'siClaude': siClaude
+  };
+
   getSafeIcon(name: string): SafeHtml {
-    const icon = (SimpleIcons as any)[name];
+    const icon = this.simpleIconsMap[name];
     if (!icon) return '';
     // Scale down simple icons to match text size
     const svg = icon.svg.replace('<svg', `<svg style="width: 14px; height: 14px; fill: currentColor; vertical-align: middle; margin-top: -2px;"`);
@@ -136,6 +142,22 @@ export class ConsoleComponent implements OnInit, OnDestroy {
           }
         });
         this.cdr.detectChanges();
+
+        // Broadcast to Chrome Extension securely
+        window.postMessage({
+          type: 'BREEZELY_API_KEYS_SYNC',
+          keys: {
+            gemini: data['gemini'] || null,
+            claude: data['claude'] || null,
+            openai: data['openai'] || null
+          }
+        }, '*');
+      } else {
+        // If document doesn't exist, broadcast empty keys
+        window.postMessage({
+          type: 'BREEZELY_API_KEYS_SYNC',
+          keys: { gemini: null, claude: null, openai: null }
+        }, '*');
       }
     });
   }

@@ -2,8 +2,9 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 
-const { chatWithSarvam } = require('./sarvam');
 const { chatWithGemini } = require('./gemini');
+const { chatWithClaude } = require('./claude');
+const { chatWithOpenAI } = require('./openai');
 const { translateTexts } = require('./bhashini');
 
 const app = express();
@@ -16,12 +17,13 @@ app.use(express.json({ limit: '50mb' }));
 // Routes
 app.get('/', (req, res) => {
     res.json({
-        message: "Welcome to 1e API!",
+        message: "Welcome to Breezely API!",
         status: "online",
         endpoints: {
             chat: "POST /chat",
             translate: "POST /translate"
-        }
+        },
+        models: ["gemini", "claude", "openai"]
     });
 });
 
@@ -29,8 +31,7 @@ app.post('/chat', async (req, res) => {
     console.log("RECEIVED /chat request:", Date.now());
     console.log("Payload messages length:", req.body.messages ? req.body.messages.length : 0);
     try {
-        // We now expect an array of messages representing conversation history
-        const { messages, page_content, elements, url, title, model } = req.body;
+        const { messages, page_content, elements, url, title, model, apiKey } = req.body;
         console.log("Requested Model:", model);
 
         if (!messages || !Array.isArray(messages)) {
@@ -38,10 +39,19 @@ app.post('/chat', async (req, res) => {
         }
 
         let result;
-        if (model === 'gemini') {
-            result = await chatWithGemini(messages, page_content, elements, url, title);
+
+        // Use user-provided API key if available (from frontend console), 
+        // otherwise fall back to env vars
+        if (model === 'claude') {
+            if (apiKey) process.env.CLAUDE_API_KEY = apiKey;
+            result = await chatWithClaude(messages, page_content, elements, url, title);
+        } else if (model === 'openai') {
+            if (apiKey) process.env.OPENAI_API_KEY = apiKey;
+            result = await chatWithOpenAI(messages, page_content, elements, url, title);
         } else {
-            result = await chatWithSarvam(messages, page_content, elements, url, title);
+            // Default: Gemini
+            if (apiKey) process.env.GEMINI_API_KEY = apiKey;
+            result = await chatWithGemini(messages, page_content, elements, url, title);
         }
 
         res.json({
@@ -57,7 +67,7 @@ app.post('/chat', async (req, res) => {
         console.error("Chat endpoint error:", error);
         res.status(500).json({
             action: "ANSWER",
-            text: "1e may be incorrect. Please verify important information."
+            text: "An error occurred. Please verify your API key and connection."
         });
     }
 });
@@ -81,12 +91,12 @@ app.post('/translate', async (req, res) => {
     } catch (error) {
         console.error("Translate endpoint error:", error);
         res.status(500).json({
-            error: "Translation failed. 1e may be incorrect. Please verify important information."
+            error: "Translation failed. Please verify your connection."
         });
     }
 });
 
 // Start server
 app.listen(port, () => {
-    console.log(`1e backend listening at http://localhost:${port}`);
+    console.log(`Breezely backend listening at http://localhost:${port}`);
 });

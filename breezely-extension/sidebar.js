@@ -226,33 +226,33 @@ sendBtn.addEventListener('click', () => {
 const welcomeScreenHTML = `
                 <div class="welcome-screen">
                     <div class="welcome-icon">
-                        <svg viewBox="0 0 24 24" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"></path>
-                        </svg>
+                        <img src="breezely-logo-white.svg" alt="Breezely Logo" width="64" height="64" />
                     </div>
-                    <h2>Breezely UI</h2>
-                    <p>Your sleek, simple web assistant.</p>
+                    <h2>Let's Breeze</h2>
+                    <p>Your personal web agent.</p>
                     <p class="subtitle">Navigate, translate, and automate with ease.</p>
                 </div>
 `;
 
-clearBtn.addEventListener('click', async () => {
-    chatContainer.innerHTML = welcomeScreenHTML;
-    // RESET AGENT STATE
-    chatHistory = [];
-    if (translationAbortController) {
-        translationAbortController.abort();
-        translationAbortController = null;
-    }
-    stopAgentLoop();
+if (clearBtn) {
+    clearBtn.addEventListener('click', async () => {
+        chatContainer.innerHTML = welcomeScreenHTML;
+        // RESET AGENT STATE
+        chatHistory = [];
+        if (translationAbortController) {
+            translationAbortController.abort();
+            translationAbortController = null;
+        }
+        stopAgentLoop();
 
-    // Reset translation back to default
-    if (translateLang.value !== "") {
-        translateLang.value = "";
-        await chrome.storage.local.remove(['targetLang', 'langName']);
-        await revertPageText();
-    }
-});
+        // Reset translation back to default
+        if (translateLang.value !== "") {
+            translateLang.value = "";
+            await chrome.storage.local.remove(['targetLang', 'langName']);
+            await revertPageText();
+        }
+    });
+}
 
 async function performTranslation(targetLang, langName) {
     if (!targetLang) {
@@ -411,9 +411,13 @@ async function runAgentLoop() {
 
             // 2. Send history and context to backend
             const modelSelect = document.getElementById('model-select');
-            const selectedModel = modelSelect ? modelSelect.value : 'sarvam';
+            const selectedModel = modelSelect ? modelSelect.value : 'gemini';
 
             currentAbortController = new AbortController();
+
+            // Get API key from chrome.storage.local for the selected model (synced from the frontend console)
+            const storedKeys = await chrome.storage.local.get(['apiKey_' + selectedModel]);
+            const apiKey = storedKeys['apiKey_' + selectedModel] || null;
 
             const response = await fetch(`${BACKEND_URL}/chat`, {
                 method: 'POST',
@@ -425,7 +429,8 @@ async function runAgentLoop() {
                     elements: context.elements,
                     url: context.url,
                     title: context.title,
-                    model: selectedModel
+                    model: selectedModel,
+                    apiKey: apiKey
                 })
             });
 
@@ -881,9 +886,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    const data = await chrome.storage.local.get(['targetLang', 'langName', 'selectedModel']);
-    // ... rest of the code is unchanged ...
+    // Listen for real-time key changes from the console
+    chrome.storage.onChanged.addListener((changes, area) => {
+        if (area === 'local') {
+            const hasKeyChanges = Object.keys(changes).some(k => k.startsWith('apiKey_'));
+            if (hasKeyChanges) {
+                updateKeyStatus();
+            }
+        }
+    });
 
+    const data = await chrome.storage.local.get(['targetLang', 'langName', 'selectedModel']);
 
     const modelSelect = document.getElementById('model-select');
     if (modelSelect && data.selectedModel) {
@@ -894,7 +907,30 @@ document.addEventListener('DOMContentLoaded', async () => {
         modelSelect.addEventListener('change', async (e) => {
             await chrome.storage.local.set({ selectedModel: e.target.value });
             addMessage(`Switched AI model to ${e.target.options[e.target.selectedIndex].text}`, "ai", "success");
+            
+            // Update key status indicator
+            updateKeyStatus();
         });
+    }
+
+    // Initial check
+    updateKeyStatus();
+
+    async function updateKeyStatus() {
+        const modelSelect = document.getElementById('model-select');
+        const indicator = document.getElementById('key-status');
+        if (!modelSelect || !indicator) return;
+
+        const currentModel = modelSelect.value;
+        const stored = await chrome.storage.local.get(['apiKey_' + currentModel]);
+
+        if (stored['apiKey_' + currentModel]) {
+            indicator.className = 'key-indicator has-key';
+            indicator.title = `${currentModel} API key active`;
+        } else {
+            indicator.className = 'key-indicator no-key';
+            indicator.title = `No ${currentModel} API key — set one in the Breezely Console`;
+        }
     }
 
     if (data.targetLang && data.langName) {
