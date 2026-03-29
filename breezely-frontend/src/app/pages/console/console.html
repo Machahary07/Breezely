@@ -134,13 +134,15 @@
 
                     <div class="input-wrapper model-id">
                       <!-- Model ID exists -->
-                      <input *ngIf="apiKeys[provider].status === 'active'" 
-                             type="text" [value]="apiKeys[provider].modelId" readonly>
+                      <select *ngIf="apiKeys[provider].status === 'active'" disabled>
+                        <option [value]="apiKeys[provider].modelId" selected>{{ apiKeys[provider].modelId }}</option>
+                      </select>
                       
-                      <!-- New Model ID Input -->
-                      <input *ngIf="apiKeys[provider].status === 'inactive'" 
-                             type="text" [placeholder]="'Enter model ID (e.g. ' + (provider === 'gemini' ? 'gemini-1.5-flash' : (provider === 'openai' ? 'gpt-4o' : 'claude-3-5-sonnet-latest')) + ')...'" 
-                             [(ngModel)]="editingKeys[provider].modelId">
+                      <!-- New Model ID Selection -->
+                      <select *ngIf="apiKeys[provider].status === 'inactive'" 
+                              [(ngModel)]="editingKeys[provider].modelId">
+                        <option *ngFor="let model of providerModels[provider]" [value]="model">{{ model }}</option>
+                      </select>
                     </div>
                   </div>
 

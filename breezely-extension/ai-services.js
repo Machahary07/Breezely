@@ -27,12 +27,12 @@ RULES:
 /**
  * Gemini API implementation for the browser
  */
-async function chatWithGemini(messagesArray = [], pageContent = "", elements = {}, url = "", title = "", apiKey = "", signal = null) {
+async function chatWithGemini(messagesArray = [], pageContent = "", elements = {}, url = "", title = "", apiKey = "", signal = null, modelId = null) {
     try {
         if (!apiKey) throw new Error("Gemini API Key is missing.");
 
-        const modelId = "gemini-1.5-flash"; // Default to flash for better extension speed
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelId}:generateContent?key=${apiKey}`;
+        const finalModelId = modelId || "gemini-pro-latest"; 
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${finalModelId}:generateContent?key=${apiKey}`;
 
         // Trim elements for context window efficiency
         let trimmedElements = elements;
@@ -112,12 +112,12 @@ async function chatWithGemini(messagesArray = [], pageContent = "", elements = {
 /**
  * Claude API implementation for the browser
  */
-async function chatWithClaude(messagesArray = [], pageContent = "", elements = {}, url = "", title = "", apiKey = "", signal = null) {
+async function chatWithClaude(messagesArray = [], pageContent = "", elements = {}, url = "", title = "", apiKey = "", signal = null, modelId = null) {
     try {
         if (!apiKey) throw new Error("Claude API Key is missing.");
 
         const apiUrl = "https://api.anthropic.com/v1/messages";
-        const modelId = "claude-3-5-sonnet-20240620";
+        const finalModelId = modelId || "claude-4-sonnet";
 
         const apiMessages = messagesArray.map(m => ({ ...m }));
         let lastUserMsg = null;
@@ -162,7 +162,7 @@ async function chatWithClaude(messagesArray = [], pageContent = "", elements = {
                 "dangerously-allow-browser": "true" 
             },
             body: JSON.stringify({
-                model: modelId,
+                model: finalModelId,
                 max_tokens: 1024,
                 system: BASE_SYSTEM_PROMPT,
                 messages: claudeMessages,
@@ -191,12 +191,12 @@ async function chatWithClaude(messagesArray = [], pageContent = "", elements = {
 /**
  * OpenAI API implementation for the browser
  */
-async function chatWithOpenAI(messagesArray = [], pageContent = "", elements = {}, url = "", title = "", apiKey = "", signal = null) {
+async function chatWithOpenAI(messagesArray = [], pageContent = "", elements = {}, url = "", title = "", apiKey = "", signal = null, modelId = null) {
     try {
         if (!apiKey) throw new Error("OpenAI API Key is missing.");
 
         const apiUrl = "https://api.openai.com/v1/chat/completions";
-        const modelId = "gpt-4o";
+        const finalModelId = modelId || "gpt-5.4";
 
         const apiMessages = messagesArray.map(m => ({ ...m }));
         let lastUserMsg = null;
@@ -227,7 +227,7 @@ async function chatWithOpenAI(messagesArray = [], pageContent = "", elements = {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                model: modelId,
+                model: finalModelId,
                 messages: openaiMessages,
                 temperature: 0.1,
                 response_format: { type: "json_object" }

@@ -440,11 +440,11 @@ async function runAgentLoop() {
             const modelSelect = document.getElementById('model-select');
             const selectedModel = modelSelect ? modelSelect.value : 'gemini';
 
-            currentAbortController = new AbortController();
-
             // Get API key from chrome.storage.local for the selected model (synced from the frontend console)
-            const storedKeys = await chrome.storage.local.get(['apiKey_' + selectedModel]);
-            const apiKey = storedKeys['apiKey_' + selectedModel] || null;
+            const stored = await chrome.storage.local.get(['apiKey_' + selectedModel]);
+            const config = stored['apiKey_' + selectedModel] || null;
+            const apiKey = config ? (typeof config === 'string' ? config : config.key) : null;
+            const modelId = config && config.modelId ? config.modelId : null;
 
             const tFetch = Date.now();
             
@@ -452,11 +452,11 @@ async function runAgentLoop() {
             
             let data;
             if (selectedModel === 'claude') {
-                data = await chatWithClaude(chatHistory, context.page_content, context.elements, context.url, context.title, apiKey, currentAbortController.signal);
+                data = await chatWithClaude(chatHistory, context.page_content, context.elements, context.url, context.title, apiKey, currentAbortController.signal, modelId);
             } else if (selectedModel === 'openai') {
-                data = await chatWithOpenAI(chatHistory, context.page_content, context.elements, context.url, context.title, apiKey, currentAbortController.signal);
+                data = await chatWithOpenAI(chatHistory, context.page_content, context.elements, context.url, context.title, apiKey, currentAbortController.signal, modelId);
             } else {
-                data = await chatWithGemini(chatHistory, context.page_content, context.elements, context.url, context.title, apiKey, currentAbortController.signal);
+                data = await chatWithGemini(chatHistory, context.page_content, context.elements, context.url, context.title, apiKey, currentAbortController.signal, modelId);
             }
 
             currentAbortController = null;

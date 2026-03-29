@@ -68,10 +68,17 @@ export class ConsoleComponent implements OnInit, OnDestroy {
   // API Keys state
   apiKeys: { [key: string]: ApiKeyData } = {
     openai: { key: '', modelId: 'gpt-4o', status: 'inactive', lastUpdated: null },
-    claude: { key: '', modelId: 'claude-3-5-sonnet-latest', status: 'inactive', lastUpdated: null },
-    gemini: { key: '', modelId: 'gemini-1.5-flash', status: 'inactive', lastUpdated: null }
+    claude: { key: '', modelId: 'claude-4-sonnet', status: 'inactive', lastUpdated: null },
+    gemini: { key: '', modelId: 'gemini-pro-latest', status: 'inactive', lastUpdated: null }
   };
   
+  // Model options
+  providerModels: { [key: string]: string[] } = {
+    gemini: ['gemini-2.5-pro', 'gemini-pro-latest', 'gemini-flash-latest'],
+    openai: ['gpt-5.4', 'gpt-5.4-mini', 'gpt-4o'],
+    claude: ['claude-4-opus', 'claude-4-sonnet', 'claude-4-haiku']
+  };
+
   // Visibility toggles
   visibleKeys: { [key: string]: boolean } = {
     openai: false,
@@ -82,8 +89,8 @@ export class ConsoleComponent implements OnInit, OnDestroy {
   // Editing state
   editingKeys: { [key: string]: { key: string, modelId: string } } = {
     openai: { key: '', modelId: 'gpt-4o' },
-    claude: { key: '', modelId: 'claude-3-5-sonnet-latest' },
-    gemini: { key: '', modelId: 'gemini-1.5-flash' }
+    claude: { key: '', modelId: 'claude-4-sonnet' },
+    gemini: { key: '', modelId: 'gemini-pro-latest' }
   };
 
   constructor(
