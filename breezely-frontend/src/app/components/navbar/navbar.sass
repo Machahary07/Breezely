@@ -12,6 +12,23 @@
   justify-content: space-between
   padding: 24px 48px
   width: 100%
+  transition: all 0.3s ease
+
+  &.light
+    .navbar__link
+      color: var(--black)
+      &:hover
+        background: rgba(0, 0, 0, 0.05)
+    .navbar__pill
+      background: rgba(0, 0, 0, 0.04)
+      border-color: rgba(0, 0, 0, 0.1)
+    .navbar__logo-img
+      filter: invert(1)
+    .navbar__hamburger-line
+      background: var(--black)
+    .navbar__signin
+      border-color: rgba(0, 0, 0, 0.1)
+      color: var(--black)
 
 // --- Logo ---
 .navbar__logo

@@ -1,0 +1,21 @@
+<div class="page-hero" [class]="theme">
+  <div class="page-hero__container">
+    <!-- Top-Left Title -->
+    <div class="page-hero__top-left">
+      <span class="page-hero__title" data-aos="fade-down">{{ title }}</span>
+      <h1 class="page-hero__heading" data-aos="fade-right" data-aos-delay="200">{{ heading }}</h1>
+    </div>
+
+    <!-- Bottom-Left Scroll Arrow -->
+    <div class="page-hero__bottom-left">
+      <div class="page-hero__arrow" data-aos="fade-up" data-aos-delay="400">
+        <fa-icon [icon]="faArrowDown"></fa-icon>
+      </div>
+    </div>
+
+    <!-- Bottom-Right Tagline -->
+    <div class="page-hero__bottom-right">
+      <p class="page-hero__tagline" data-aos="fade-left" data-aos-delay="600">{{ tagline }}</p>
+    </div>
+  </div>
+</div>

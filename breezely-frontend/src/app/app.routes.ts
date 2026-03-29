@@ -26,5 +26,9 @@ export const routes: Routes = [
     path: 'coming-soon', 
     loadComponent: () => import('./pages/coming-soon/coming-soon').then(m => m.ComingSoonComponent) 
   },
+  { 
+    path: 'platform', 
+    loadComponent: () => import('./pages/platform/platform').then(m => m.PlatformPage) 
+  },
   { path: '**', redirectTo: 'coming-soon' }
 ];

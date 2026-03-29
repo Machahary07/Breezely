@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 
@@ -10,6 +10,7 @@ import { RouterModule } from '@angular/router';
   styleUrl: './navbar.sass'
 })
 export class NavbarComponent {
+  @Input() theme: 'light' | 'dark' = 'dark';
   mobileMenuOpen = false;
 
   toggleMenu(): void {

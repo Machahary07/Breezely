@@ -1,0 +1,102 @@
+.platform-page
+  width: 100%
+  background: #fdfdfd
+  min-height: 100vh
+
+.platform-overview
+  padding: 120px 48px
+  background: #ffffff
+  border-top: 1px solid rgba(0, 0, 0, 0.05)
+  position: relative
+  z-index: 2
+
+.overview__container
+  max-width: 1400px
+  margin: 0 auto
+
+.overview__header
+  margin-bottom: 80px
+  max-width: 700px
+
+.overview__heading
+  font-family: var(--font-heading)
+  font-size: var(--section-heading-size)
+  color: var(--black)
+  margin-bottom: 16px
+
+.overview__subheading
+  font-family: var(--font-body)
+  font-size: 18px
+  color: rgba(0, 0, 0, 0.45)
+
+.overview__grid
+  display: grid
+  grid-template-columns: repeat(3, 1fr)
+  gap: 40px
+
+.overview__item
+  background: #ffffff
+  border: 1px solid rgba(0, 0, 0, 0.08)
+  border-radius: 16px
+  padding: 40px
+  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1)
+
+  &:hover
+    background: #ffffff
+    border-color: var(--breezely-green)
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.04)
+    transform: translateY(-8px)
+
+.item__icon-wrapper
+  width: 48px
+  height: 48px
+  background: rgba(140, 255, 136, 0.15)
+  border-radius: 12px
+  margin-bottom: 24px
+  position: relative
+
+  &::after
+    content: ''
+    position: absolute
+    top: 50%
+    left: 50%
+    transform: translate(-50%, -50%)
+    width: 20px
+    height: 20px
+    border: 2px solid var(--breezely-green)
+    border-radius: 4px
+    opacity: 0.8
+
+.item__title
+  font-family: var(--font-heading)
+  font-size: 24px
+  color: var(--black)
+  margin-bottom: 20px
+
+.item__text
+  font-family: var(--font-body)
+  font-size: 16px
+  line-height: 1.7
+  color: rgba(0, 0, 0, 0.55)
+  margin: 0
+
+@media (max-width: 1024px)
+  .platform-overview
+    padding: 100px 32px
+  .overview__grid
+    grid-template-columns: repeat(2, 1fr)
+
+@media (max-width: 768px)
+  .platform-overview
+    padding: 80px 24px
+
+  .overview__grid
+    grid-template-columns: 1fr
+    gap: 24px
+
+  .overview__item
+    padding: 32px
+
+@media (max-width: 480px)
+  .platform-overview
+    padding: 80px 18px

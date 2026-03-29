@@ -1,0 +1,125 @@
+.page-hero
+  position: relative
+  width: 100%
+  height: 90vh
+  display: flex
+  align-items: center
+  justify-content: center
+  background: transparent
+  overflow: hidden
+  padding: 0 48px
+
+  &.light
+    background: var(--breezely-green)
+    .page-hero__title
+      color: var(--white)
+      opacity: 1
+    .page-hero__heading
+      color: var(--black)
+    .page-hero__tagline
+      color: rgba(0, 0, 0, 0.5)
+    .page-hero__arrow
+      border-color: rgba(255, 255, 255, 0.4)
+      color: var(--white)
+      &:hover
+        background: rgba(255, 255, 255, 0.2)
+        border-color: var(--white)
+
+@media (max-width: 1024px)
+  .page-hero
+    padding: 0 32px
+
+@media (max-width: 768px)
+  .page-hero
+    padding: 0 24px
+
+@media (max-width: 480px)
+  .page-hero
+    padding: 0 18px
+
+.page-hero__container
+  width: 100%
+  height: 100%
+  position: relative
+  display: flex
+  flex-direction: column
+  justify-content: space-between
+  padding: 12vh 0 8vh 0
+
+.page-hero__top-left
+  display: flex
+  flex-direction: column
+  align-items: flex-start
+  gap: 16px
+  max-width: 800px
+
+.page-hero__title
+  font-family: var(--font-body)
+  font-size: 14px
+  text-transform: uppercase
+  letter-spacing: 0.3em
+  color: var(--breezely-green)
+  font-weight: 700
+  opacity: 0.8
+
+.page-hero__heading
+  font-family: var(--font-heading)
+  font-size: clamp(48px, 8vw, 106px)
+  font-weight: 700
+  color: var(--white)
+  line-height: 1.1
+  margin: 0
+
+.page-hero__bottom-left
+  position: absolute
+  bottom: 8vh
+  left: 0
+
+.page-hero__arrow
+  width: 50px
+  height: 50px
+  border: 1px solid rgba(140, 255, 136, 0.3)
+  border-radius: 50%
+  display: flex
+  align-items: center
+  justify-content: center
+  color: var(--breezely-green)
+  font-size: 18px
+  animation: pulse-arrow 2s infinite ease-in-out
+  cursor: pointer
+  transition: all 0.3s ease
+
+  &:hover
+    background: rgba(140, 255, 136, 0.1)
+    border-color: var(--breezely-green)
+
+.page-hero__bottom-right
+  align-self: flex-end
+  max-width: 500px
+  text-align: right
+
+.page-hero__tagline
+  font-family: var(--font-body)
+  font-size: 18px
+  line-height: 1.6
+  color: rgba(255, 255, 255, 0.6)
+  font-weight: 400
+  margin: 0
+
+@keyframes pulse-arrow
+  0%, 100%
+    transform: translateY(0)
+  50%
+    transform: translateY(10px)
+
+@media (max-width: 768px)
+  .page-hero
+    height: 85vh
+    padding: 0 24px
+
+  .page-hero__heading
+    font-size: 42px
+
+  .page-hero__tagline
+    font-size: 14px
+    max-width: 300px

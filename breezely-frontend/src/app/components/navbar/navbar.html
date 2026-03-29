@@ -1,4 +1,4 @@
-<header class="navbar" id="navbar">
+<header class="navbar" [class]="theme" id="navbar">
   <div class="navbar__logo">
     <a href="/" aria-label="Breezely Home">
       <img src="Breezely-logo-white-svg-header.svg" alt="Breezely Logo" class="navbar__logo-img" />
@@ -8,7 +8,7 @@
   <!-- Desktop Nav -->
   <nav class="navbar__right" aria-label="Main navigation">
     <div class="navbar__pill">
-      <a routerLink="/coming-soon" class="navbar__link" id="nav-platform">Platform</a>
+      <a routerLink="/platform" class="navbar__link" id="nav-platform">Platform</a>
       <a routerLink="/coming-soon" class="navbar__link" id="nav-team">Team Commit&amp;Run</a>
       <a routerLink="/status" class="navbar__link" id="nav-status">Status</a>
     </div>
@@ -31,7 +31,7 @@
 <!-- Mobile Menu Overlay -->
 <div class="mobile-menu" [class.active]="mobileMenuOpen" id="mobile-menu">
   <ul class="mobile-menu__links">
-    <li><a routerLink="/coming-soon" class="mobile-menu__link" (click)="closeMenu()">Platform</a></li>
+    <li><a routerLink="/platform" class="mobile-menu__link" (click)="closeMenu()">Platform</a></li>
     <li><a routerLink="/coming-soon" class="mobile-menu__link" (click)="closeMenu()">Team Commit&amp;Run</a></li>
     <li><a routerLink="/status" class="mobile-menu__link" (click)="closeMenu()">Status</a></li>
     <li><a routerLink="/signin" class="mobile-menu__link mobile-menu__signin" (click)="closeMenu()">Sign In</a></li>
