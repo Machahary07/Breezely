@@ -95,7 +95,12 @@ app.post('/translate', async (req, res) => {
     }
 });
 
-// Start server
-app.listen(port, () => {
+// Start server with keep-alive enabled for better connection reuse
+// OPT: keepAliveTimeout > 0 lets the extension reuse the same TCP connection
+// across multiple /chat calls in a single agentic loop — avoids per-call handshake.
+const server = app.listen(port, () => {
     console.log(`Breezely backend listening at http://localhost:${port}`);
 });
+server.keepAliveTimeout = 30000; // 30s keep-alive window
+server.headersTimeout = 35000;   // must be > keepAliveTimeout
+

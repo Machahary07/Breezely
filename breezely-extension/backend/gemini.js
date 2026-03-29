@@ -8,6 +8,24 @@ async function chatWithGemini(messagesArray = [], pageContent = "", elements = {
 
         const ai = new GoogleGenAI({ apiKey });
 
+        // OPT: Slim the elements payload — only keep top 40 interactive elements.
+        // On Amazon, the full list can be 300+ items which bloats the prompt badly.
+        let trimmedElements = elements;
+        if (elements && elements.interactable && Array.isArray(elements.interactable)) {
+            const PRIORITY_TYPES = ['input', 'button', 'a', 'select', 'textarea'];
+            const interactive = elements.interactable
+                .filter(el => PRIORITY_TYPES.includes(el.type) || PRIORITY_TYPES.includes(el.tag))
+                .slice(0, 40);
+            // Include remaining slots from non-priority if we have room
+            const rest = elements.interactable
+                .filter(el => !PRIORITY_TYPES.includes(el.type) && !PRIORITY_TYPES.includes(el.tag))
+                .slice(0, Math.max(0, 40 - interactive.length));
+            trimmedElements = {
+                interactable: [...interactive, ...rest],
+                headings: elements.headings ? elements.headings.slice(0, 10) : []
+            };
+        }
+
         const contents = [];
         for (const msg of messagesArray) {
             const role = msg.role === "assistant" ? "model" : "user";
@@ -16,7 +34,8 @@ async function chatWithGemini(messagesArray = [], pageContent = "", elements = {
             // If it's a browser task, append context to the LAST user message
             if (role === "user" && msg === messagesArray.filter(m => m.role === 'user').pop()) {
                 if (pageContent || url) {
-                    textContent = `[BROWSER CONTEXT]\nURL: ${url}\nTITLE: ${title}\nDOM: ${pageContent ? pageContent.substring(0, 2000) : "N/A"}\nELEMENTS: ${JSON.stringify(elements)}\n\n[USER COMMAND]\n${msg.content}`;
+                    // OPT: Trimmed DOM text from 2000 → 1500 chars (still enough for most pages)
+                    textContent = `[BROWSER CONTEXT]\nURL: ${url}\nTITLE: ${title}\nDOM: ${pageContent ? pageContent.substring(0, 1500) : "N/A"}\nELEMENTS: ${JSON.stringify(trimmedElements)}\n\n[USER COMMAND]\n${msg.content}`;
                 }
             }
 
@@ -35,8 +54,12 @@ async function chatWithGemini(messagesArray = [], pageContent = "", elements = {
             contents.push({ role, parts });
         }
 
+        const tStart = Date.now();
         console.log(`Sending to Gemini (@google/genai) using model: ${modelId}...`);
-        const response = await ai.models.generateContent({
+
+        // OPT: Use streaming so the backend gets the first token sooner.
+        // We still collect the full response before parsing JSON.
+        const stream = await ai.models.generateContentStream({
             model: modelId,
             contents: contents,
             config: {
@@ -46,10 +69,13 @@ async function chatWithGemini(messagesArray = [], pageContent = "", elements = {
             }
         });
 
-        const text = response.text;
+        let fullText = '';
+        for await (const chunk of stream) {
+            if (chunk.text) fullText += chunk.text;
+        }
 
-        console.log("Gemini Response:", text);
-        return JSON.parse(text);
+        console.log(`Gemini Response (${Date.now() - tStart}ms):`, fullText);
+        return JSON.parse(fullText);
 
     } catch (error) {
         console.error("Gemini Critical Error:", error);

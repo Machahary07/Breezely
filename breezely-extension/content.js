@@ -14,6 +14,12 @@ if (!window.__1e_content_script_injected) {
         } else if (request.type === "INJECT_TRANSLATION") {
             injectTranslation(request.translatedTexts);
             sendResponse({ status: "success" });
+        } else if (request.type === "START_DYNAMIC_TRANSLATION") {
+            startDynamicTranslation(request.targetLang);
+            sendResponse({ status: "success" });
+        } else if (request.type === "STOP_DYNAMIC_TRANSLATION") {
+            stopDynamicTranslation();
+            sendResponse({ status: "success" });
         } else if (request.type === "REVERT_TRANSLATION") {
             revertTranslation();
             sendResponse({ status: "success" });
@@ -59,8 +65,9 @@ function extractContext() {
     document.querySelectorAll('[data-1e-id]').forEach(el => el.removeAttribute('data-1e-id'));
     nextElementId = 1;
 
-    // Limit text to avoid payload size issues but keep enough for e-commerce sites
-    const text = document.body ? document.body.innerText.substring(0, 8000) : "";
+    // OPT: Trim body text from 8000 → 4000 chars. The model uses this for context
+    // only; the structured elements list is the primary navigation signal.
+    const text = document.body ? document.body.innerText.substring(0, 4000) : "";
 
     const inputs = [];
     try {
@@ -77,9 +84,14 @@ function extractContext() {
     }
 
     const buttons = [];
+    // OPT: Skip structural/decorative tags (nav, footer, header icons) — these are
+    // almost never what the model needs to click and they bloat the payload.
+    const SKIP_TAGS = new Set(['nav', 'header', 'footer']);
     try {
         document.querySelectorAll('button, a, [role="button"], [role="link"], [role="tab"], [tabindex], [onclick], li, .card, .track01').forEach(b => {
             if (b.offsetParent !== null) { // only visible
+                // Skip elements inside purely structural containers
+                if (b.closest('nav, footer') && b.tagName.toLowerCase() !== 'button') return;
                 const label = (b.innerText || b.value || b.getAttribute('aria-label') || "").trim().substring(0, 100);
                 if (label && !b.hasAttribute('data-1e-id')) {
                     b.setAttribute('data-1e-id', nextElementId);
@@ -121,7 +133,9 @@ function extractContext() {
     return {
         page_content: text,
         elements: {
-            interactable: [...inputs, ...buttons, ...images].slice(0, 400), // Keep payload broad enough for complex pages
+            // OPT: Reduced cap from 400 → 200 interactable elements.
+            // Combined with gemini.js trimming to 40, this reduces round-trip payload size.
+            interactable: [...inputs, ...buttons, ...images].slice(0, 200),
             headings: [...new Set(headings)]
         }
     };
@@ -240,11 +254,168 @@ function executeCommand(command) {
     });
 }
 
+let originalTextMap = new Map(); // Store original text for nodes
+let translationObserver = null;
+let currentTargetLang = null;
+let isTranslating = false;
+let translatorInstance = null; // For Chrome's window.translation API
+
+async function getTranslator(targetLang) {
+    if (targetLang === 'en') return null; // Assume source is en for now
+    
+    // Check for Chrome's experimental Translation API (Built-in AI)
+    // There are several possible paths as the API evolves (window.translation, window.ai.translator)
+    const aiAPI = window.translation || (window.ai ? window.ai.translator : null);
+    
+    if (aiAPI && aiAPI.canTranslate) {
+        try {
+            const canTranslate = await aiAPI.canTranslate({
+                sourceLanguage: 'en',
+                targetLanguage: targetLang
+            });
+            
+            if (canTranslate === 'readily' || canTranslate === 'after-download') {
+                console.log(`Breezely: Using Chrome's built-in AI Translation for ${targetLang}`);
+                return await aiAPI.create({
+                    sourceLanguage: 'en',
+                    targetLanguage: targetLang
+                });
+            }
+        } catch (e) {
+            console.warn("Chrome AI Translation check failed:", e);
+        }
+    }
+    return null;
+}
+
+async function startDynamicTranslation(targetLang) {
+    if (isTranslating && currentTargetLang === targetLang) return;
+    
+    isTranslating = true;
+    currentTargetLang = targetLang;
+    
+    // 1. Try to initialize built-in translator
+    translatorInstance = await getTranslator(targetLang);
+    
+    // 2. Initial pass: Translate everything currently on screen
+    const texts = extractTextNodes(); // This also populates originalTextMap
+    
+    if (translatorInstance) {
+        // Use local API
+        const batchSize = 10;
+        for (let i = 0; i < texts.length; i += batchSize) {
+            const batch = texts.slice(i, i + batchSize);
+            const translations = await Promise.all(batch.map(t => translatorInstance.translate(t)));
+            injectTranslation(translations, i);
+        }
+    } else {
+        // Fallback to backend (handled via sidebar.js for the first pass usually, 
+        // but we can trigger it here for dynamic content batches)
+        // Note: sidebar.js currently handles the FIRST BROAD pass.
+    }
+    
+    // 3. Start observing for new content
+    if (translationObserver) translationObserver.disconnect();
+    
+    translationObserver = new MutationObserver(async (mutations) => {
+        const newNodes = [];
+        for (const mutation of mutations) {
+            for (const node of mutation.addedNodes) {
+                findTextNodes(node, newNodes);
+            }
+        }
+        
+        if (newNodes.length > 0) {
+            console.log(`Breezely: Found ${newNodes.length} new text nodes to translate`);
+            await translateBatch(newNodes);
+        }
+    });
+    
+    translationObserver.observe(document.body, { childList: true, subtree: true });
+}
+
+function stopDynamicTranslation() {
+    isTranslating = false;
+    if (translationObserver) {
+        translationObserver.disconnect();
+        translationObserver = null;
+    }
+    translatorInstance = null;
+}
+
+function findTextNodes(root, results = []) {
+    if (!root) return results;
+    
+    // Skip scripts, styles, etc.
+    if (root.nodeType === Node.ELEMENT_NODE) {
+        const tag = root.tagName.toLowerCase();
+        if (tag === 'script' || tag === 'style' || tag === 'noscript' || tag === 'iframe') return results;
+    }
+
+    if (root.nodeType === Node.TEXT_NODE) {
+        const text = root.nodeValue.trim();
+        if (text.length > 1 && !originalTextMap.has(root)) {
+            originalTextMap.set(root, root.nodeValue);
+            results.push(root);
+        }
+    } else {
+        for (const child of root.childNodes) {
+            findTextNodes(child, results);
+        }
+    }
+    return results;
+}
+
+async function translateBatch(nodes) {
+    if (!isTranslating || !currentTargetLang) return;
+    
+    const texts = nodes.map(n => n.nodeValue.trim());
+    
+    if (translatorInstance) {
+        // Fast local translation
+        for (let i = 0; i < nodes.length; i++) {
+            try {
+                const translation = await translatorInstance.translate(texts[i]);
+                applyTranslationToNode(nodes[i], translation);
+            } catch (e) {
+                console.error("Local translation error:", e);
+            }
+        }
+    } else {
+        // Remote translation through backend
+        // We batch these to avoid hitting the backend too frequently
+        try {
+            chrome.runtime.sendMessage({
+                type: "TRANSLATE_BATCH_REQUEST",
+                texts: texts,
+                targetLang: currentTargetLang
+            }, (response) => {
+                if (response && response.translations) {
+                    for (let i = 0; i < nodes.length; i++) {
+                        applyTranslationToNode(nodes[i], response.translations[i]);
+                    }
+                }
+            });
+        } catch (e) {
+            console.warn("Runtime message failed (likely extension reload):", e);
+        }
+    }
+}
+
+function applyTranslationToNode(node, translation) {
+    if (!node || !translation) return;
+    const originalText = originalTextMap.get(node) || node.nodeValue;
+    const leadingSpace = originalText.match(/^\s*/)[0];
+    const trailingSpace = originalText.match(/\s*$/)[0];
+    node.nodeValue = leadingSpace + translation + trailingSpace;
+}
+
 let originalTextNodes = [];
 
 function extractTextNodes() {
     originalTextNodes = [];
     const texts = [];
+    originalTextMap.clear();
 
     const walk = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
         acceptNode: function (node) {
@@ -260,12 +431,13 @@ function extractTextNodes() {
         const text = node.nodeValue.trim();
         if (text.length > 1) {
             originalTextNodes.push({ node: node, originalText: node.nodeValue });
+            originalTextMap.set(node, node.nodeValue);
             texts.push(text);
         }
     }
 
-    // Limit to avoid payload crashes
-    const MAX_NODES = 500;
+    // Limit to avoid payload crashes for remote translation
+    const MAX_NODES = 1000;
     if (texts.length > MAX_NODES) {
         originalTextNodes = originalTextNodes.slice(0, MAX_NODES);
         return texts.slice(0, MAX_NODES);
@@ -273,11 +445,14 @@ function extractTextNodes() {
     return texts;
 }
 
-function injectTranslation(translatedTexts) {
+function injectTranslation(translatedTexts, offset = 0) {
     if (!translatedTexts || !Array.isArray(translatedTexts)) return;
 
-    for (let i = 0; i < Math.min(originalTextNodes.length, translatedTexts.length); i++) {
-        const { node, originalText } = originalTextNodes[i];
+    for (let i = 0; i < translatedTexts.length; i++) {
+        const nodeIndex = i + offset;
+        if (nodeIndex >= originalTextNodes.length) break;
+        
+        const { node, originalText } = originalTextNodes[nodeIndex];
         const translation = translatedTexts[i];
 
         const leadingSpace = originalText.match(/^\s*/)[0];
@@ -288,9 +463,11 @@ function injectTranslation(translatedTexts) {
 }
 
 function revertTranslation() {
-    for (const item of originalTextNodes) {
-        if (item.node && item.originalText !== undefined) {
-            item.node.nodeValue = item.originalText;
+    stopDynamicTranslation();
+    originalTextMap.forEach((originalText, node) => {
+        if (node) {
+            node.nodeValue = originalText;
         }
-    }
+    });
+    originalTextMap.clear();
 }

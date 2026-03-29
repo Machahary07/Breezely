@@ -8,8 +8,25 @@ const speechLang = document.getElementById('speech-lang');
 const equalizer = document.getElementById('mic-equalizer');
 const eqBars = equalizer ? equalizer.querySelectorAll('.bar') : [];
 
-// Replace this with your actual local backend URL during testing
 const BACKEND_URL = 'http://127.0.0.1:8000';
+
+// Listen for batch translation requests from content script (dynamic content)
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (request.type === 'TRANSLATE_BATCH_REQUEST') {
+        fetch(`${BACKEND_URL}/translate`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ texts: request.texts, targetLanguage: request.targetLang })
+        })
+        .then(res => res.json())
+        .then(data => sendResponse({ translations: data.translated_texts }))
+        .catch(err => {
+            console.error("Batch translation error:", err);
+            sendResponse({ translations: null });
+        });
+        return true; // async
+    }
+});
 
 // Speech Recognition setup
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -294,16 +311,14 @@ async function performTranslation(targetLang, langName) {
 
         const data = await response.json();
         if (data.translated_texts) {
-            addMessage("Translation complete. Updating the page in-place...", "ai", "translation-success");
+            addMessage("Static content translated. Dynamic scanning active.", "ai", "translation-success");
             await replacePageTextNodes(data.translated_texts);
 
-            // Notify content script about updated translation state
-            setTimeout(async () => {
-                const tab = await getActiveTab();
-                if (tab) {
-                    chrome.tabs.sendMessage(tab.id, { type: "SET_TRANSLATION_STATE", lang: targetLang });
-                }
-            }, 1000);
+            // Notify content script to start dynamic observer
+            const tab = await getActiveTab();
+            if (tab) {
+                chrome.tabs.sendMessage(tab.id, { type: "START_DYNAMIC_TRANSLATION", targetLang: targetLang });
+            }
         } else {
             throw new Error("Missing translated texts from backend");
         }
@@ -404,16 +419,28 @@ async function runAgentLoop() {
     addTypingIndicator(typingId);
 
     try {
+        // --- OPT: DOM cache state ---
+        let cachedContext = null;
+        let lastActionChangedPage = true; // force fetch on first turn
+        // Page-changing actions that require a fresh DOM snapshot
+        const PAGE_CHANGING_ACTIONS = ['NAVIGATE', 'CLICK', 'SCROLL'];
+
         while (isAgentRunning && !userRequestedStop) {
 
             const userHistory = chatHistory.filter(m => m.role === 'user');
             const lastUserMsg = userHistory.length > 0 ? userHistory[userHistory.length - 1].content : "";
-            const isAutomationTask = /click|scroll|type|navigate|translate|this page|on here|fill|button|read|find/i.test(lastUserMsg);
+            // OPT: Expanded regex — catches "go to", "open", "visit", "buy", "search", "submit"
+            const isAutomationTask = /click|scroll|type|navigate|go to|open|visit|translate|fill|button|search|buy|find|read|show|check|submit|enter/i.test(lastUserMsg);
 
             // 1. Extract context ONLY if it's likely an automation task
             let context = { page_content: "", elements: {}, url: "", title: "" };
             if (isAutomationTask) {
-                context = await getPageContext();
+                // OPT: Reuse cached DOM snapshot if the page hasn't changed
+                if (lastActionChangedPage || cachedContext === null) {
+                    cachedContext = await getPageContext();
+                    lastActionChangedPage = false;
+                }
+                context = cachedContext;
             } else {
                 const tab = await getActiveTab();
                 if (tab) {
@@ -432,9 +459,12 @@ async function runAgentLoop() {
             const storedKeys = await chrome.storage.local.get(['apiKey_' + selectedModel]);
             const apiKey = storedKeys['apiKey_' + selectedModel] || null;
 
+            const tFetch = Date.now();
             const response = await fetch(`${BACKEND_URL}/chat`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                // OPT: keepalive reuses the TCP connection across loop turns
+                keepalive: true,
+                headers: { 'Content-Type': 'application/json', 'Connection': 'keep-alive' },
                 signal: currentAbortController.signal,
                 body: JSON.stringify({
                     messages: chatHistory,
@@ -451,6 +481,7 @@ async function runAgentLoop() {
 
             if (!response.ok) throw new Error('Network response was not ok');
             const data = await response.json();
+            console.log(`[Breezely ⚡] /chat round-trip: ${Date.now() - tFetch}ms | action: ${data.action}`);
 
             // Log assistant's action into history 
             // Only add valid string content for Sarvam's prompt engine
@@ -495,12 +526,18 @@ async function runAgentLoop() {
                     executedResponse = await executeCommandInPage(data);
                 }
 
-                // We need to give the page time to react (navigate, modal open, DOM update)
-                // If it's a navigation, wait longer for the new page to load
+                // OPT: Smart waiting — poll tab status instead of sleeping blindly
                 if (data.action === "NAVIGATE") {
-                    await new Promise(r => setTimeout(r, 6000));
+                    await waitForTabReady(); // exits as soon as tab.status === 'complete'
+                    cachedContext = null; // new page = stale cache
+                    lastActionChangedPage = false;
                 } else if (data.action !== "TRANSLATE") {
-                    await new Promise(r => setTimeout(r, 1500));
+                    // OPT: Reduced from 1500ms to 600ms for non-navigate actions
+                    await new Promise(r => setTimeout(r, 600));
+                    // Mark cache stale only if the action likely mutated the DOM
+                    if (PAGE_CHANGING_ACTIONS.includes(data.action)) {
+                        lastActionChangedPage = true;
+                    }
                 }
 
                 if (userRequestedStop) break;
@@ -616,7 +653,10 @@ function addMessage(text, sender, type = 'normal') {
                 cancelBtn.disabled = true;
                 cancelBtn.textContent = 'Reverting...';
                 await revertPageText();
-                translateLang.value = "";
+                
+                // Reset dropdown to Default
+                resetPremiumDropdown('translate-lang', '', 'Default');
+                
                 await chrome.storage.local.remove(['targetLang', 'langName']);
                 addMessage('Translation reverted.', 'ai');
                 msgDiv.remove();
@@ -669,6 +709,18 @@ function scrollToBottom() {
 async function getActiveTab() {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     return tab;
+}
+
+// OPT: Smart tab polling — replaces hardcoded setTimeout(6000) after NAVIGATE.
+// Exits as soon as the tab finishes loading (status === 'complete'), up to timeoutMs.
+async function waitForTabReady(timeoutMs = 8000) {
+    const start = Date.now();
+    while (Date.now() - start < timeoutMs) {
+        const tab = await getActiveTab();
+        if (tab && tab.status === 'complete') return;
+        await new Promise(r => setTimeout(r, 300));
+    }
+    console.warn('waitForTabReady: timed out waiting for tab to load');
 }
 
 async function injectContentScriptIfNeeded(tabId) {
@@ -987,6 +1039,22 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
 });
 
 // --- Premium Dropdown JS ---
+function resetPremiumDropdown(id, defaultValue, defaultLabel) {
+    const dropdown = document.querySelector(`.premium-dropdown[data-target="${id}"]`);
+    if (dropdown) {
+        const valDisplay = dropdown.querySelector('.premium-dropdown-val');
+        const select = document.getElementById(id);
+        if (valDisplay) valDisplay.textContent = defaultLabel;
+        if (select) select.value = defaultValue;
+        
+        // Update menu active state
+        const items = dropdown.querySelectorAll('.premium-dropdown-item');
+        items.forEach(item => {
+            item.classList.toggle('active', item.dataset.value === defaultValue);
+        });
+    }
+}
+
 document.addEventListener('click', (e) => {
     if (!e.target.closest('.premium-dropdown')) {
         document.querySelectorAll('.premium-dropdown.open').forEach(d => d.classList.remove('open'));
@@ -1018,3 +1086,27 @@ document.querySelectorAll('.premium-dropdown').forEach(dropdown => {
         });
     });
 });
+
+// Refresh Sidebar Button
+const refreshBtn = document.getElementById('sidebar-refresh-btn');
+if (refreshBtn) {
+    refreshBtn.addEventListener('click', async () => {
+        // Simple spin animation feedback
+        const svg = refreshBtn.querySelector('svg');
+        svg.classList.add('spin-animation');
+        
+        try {
+            // Revert translation on the page if active
+            await revertPageText();
+        } catch (e) { console.log("Nothing to revert or tab disconnected"); }
+        
+        // Clear translation persistence from storage so dropdown returns to 'Default'
+        await chrome.storage.local.remove(['targetLang', 'langName']);
+        
+        setTimeout(() => {
+            if (svg) svg.classList.remove('spin-animation');
+            // Hard refresh - clears chat UI and resets all sidebar states
+            window.location.reload();
+        }, 800);
+    });
+}
