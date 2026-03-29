@@ -33,13 +33,13 @@
 
             <div class="premium-dropdown header-dropdown" data-target="translate-lang">
               <div class="premium-dropdown-btn" title="Translate Page">
-                <span class="premium-dropdown-val">Translate</span>
+                <span class="premium-dropdown-val">Default</span>
                 <svg class="chevron" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <polyline points="18 15 12 9 6 15"></polyline>
                 </svg>
               </div>
               <div class="premium-dropdown-menu">
-                <div class="premium-dropdown-item active" data-value="">Translate</div>
+                <div class="premium-dropdown-item active" data-value="">Default</div>
                 <div class="premium-dropdown-item" data-value="as">Assamese</div>
                 <div class="premium-dropdown-item" data-value="bn">Bengali</div>
                 <div class="premium-dropdown-item" data-value="brx">Bodo</div>
@@ -47,7 +47,7 @@
                 <div class="premium-dropdown-item" data-value="en">English</div>
               </div>
               <select id="translate-lang" style="display:none;">
-                <option value="">Translate</option>
+                <option value="">Default</option>
                 <option value="as">Assamese</option>
                 <option value="bn">Bengali</option>
                 <option value="brx">Bodo</option>
@@ -55,6 +55,14 @@
                 <option value="en">English</option>
               </select>
             </div>
+
+            <button id="sidebar-refresh-btn" class="icon-btn tool-btn" title="Refresh Breezely">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M23 4v6h-6"></path>
+                <path d="M1 20v-6h6"></path>
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+              </svg>
+            </button>
             
             <div id="auth-status" class="auth-status">
               <!-- Profile image will be injected here -->

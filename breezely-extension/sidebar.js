@@ -8,8 +8,25 @@ const speechLang = document.getElementById('speech-lang');
 const equalizer = document.getElementById('mic-equalizer');
 const eqBars = equalizer ? equalizer.querySelectorAll('.bar') : [];
 
-// Replace this with your actual local backend URL during testing
 const BACKEND_URL = 'http://127.0.0.1:8000';
+
+// Listen for batch translation requests from content script (dynamic content)
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (request.type === 'TRANSLATE_BATCH_REQUEST') {
+        fetch(`${BACKEND_URL}/translate`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ texts: request.texts, targetLanguage: request.targetLang })
+        })
+        .then(res => res.json())
+        .then(data => sendResponse({ translations: data.translated_texts }))
+        .catch(err => {
+            console.error("Batch translation error:", err);
+            sendResponse({ translations: null });
+        });
+        return true; // async
+    }
+});
 
 // Speech Recognition setup
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -294,16 +311,14 @@ async function performTranslation(targetLang, langName) {
 
         const data = await response.json();
         if (data.translated_texts) {
-            addMessage("Translation complete. Updating the page in-place...", "ai", "translation-success");
+            addMessage("Static content translated. Dynamic scanning active.", "ai", "translation-success");
             await replacePageTextNodes(data.translated_texts);
 
-            // Notify content script about updated translation state
-            setTimeout(async () => {
-                const tab = await getActiveTab();
-                if (tab) {
-                    chrome.tabs.sendMessage(tab.id, { type: "SET_TRANSLATION_STATE", lang: targetLang });
-                }
-            }, 1000);
+            // Notify content script to start dynamic observer
+            const tab = await getActiveTab();
+            if (tab) {
+                chrome.tabs.sendMessage(tab.id, { type: "START_DYNAMIC_TRANSLATION", targetLang: targetLang });
+            }
         } else {
             throw new Error("Missing translated texts from backend");
         }
@@ -616,7 +631,10 @@ function addMessage(text, sender, type = 'normal') {
                 cancelBtn.disabled = true;
                 cancelBtn.textContent = 'Reverting...';
                 await revertPageText();
-                translateLang.value = "";
+                
+                // Reset dropdown to Default
+                resetPremiumDropdown('translate-lang', '', 'Default');
+                
                 await chrome.storage.local.remove(['targetLang', 'langName']);
                 addMessage('Translation reverted.', 'ai');
                 msgDiv.remove();
@@ -987,6 +1005,22 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
 });
 
 // --- Premium Dropdown JS ---
+function resetPremiumDropdown(id, defaultValue, defaultLabel) {
+    const dropdown = document.querySelector(`.premium-dropdown[data-target="${id}"]`);
+    if (dropdown) {
+        const valDisplay = dropdown.querySelector('.premium-dropdown-val');
+        const select = document.getElementById(id);
+        if (valDisplay) valDisplay.textContent = defaultLabel;
+        if (select) select.value = defaultValue;
+        
+        // Update menu active state
+        const items = dropdown.querySelectorAll('.premium-dropdown-item');
+        items.forEach(item => {
+            item.classList.toggle('active', item.dataset.value === defaultValue);
+        });
+    }
+}
+
 document.addEventListener('click', (e) => {
     if (!e.target.closest('.premium-dropdown')) {
         document.querySelectorAll('.premium-dropdown.open').forEach(d => d.classList.remove('open'));
@@ -1018,3 +1052,27 @@ document.querySelectorAll('.premium-dropdown').forEach(dropdown => {
         });
     });
 });
+
+// Refresh Sidebar Button
+const refreshBtn = document.getElementById('sidebar-refresh-btn');
+if (refreshBtn) {
+    refreshBtn.addEventListener('click', async () => {
+        // Simple spin animation feedback
+        const svg = refreshBtn.querySelector('svg');
+        svg.classList.add('spin-animation');
+        
+        try {
+            // Revert translation on the page if active
+            await revertPageText();
+        } catch (e) { console.log("Nothing to revert or tab disconnected"); }
+        
+        // Clear translation persistence from storage so dropdown returns to 'Default'
+        await chrome.storage.local.remove(['targetLang', 'langName']);
+        
+        setTimeout(() => {
+            if (svg) svg.classList.remove('spin-animation');
+            // Hard refresh - clears chat UI and resets all sidebar states
+            window.location.reload();
+        }, 800);
+    });
+}

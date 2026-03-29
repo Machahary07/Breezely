@@ -1,7 +1,7 @@
 const fetch = require('node-fetch');
 
 const BHASHINI_ENDPOINT = "https://dhruva-api.bhashini.gov.in/services/inference/pipeline";
-const BHASHINI_KEY = process.env.BHASHINI_SUBSCRIPTION_KEY;
+const BHASHINI_KEY = process.env.BHASHINI_SUBSCRIPTION_KEY || "KbA_dh-JvZvKpjo152OjtWmHPGindblWZNX-Usvx0SxqP0l0pzGgWoWcRwQ-WuoE";
 
 async function translateTexts(textsArray, targetLang = 'as') {
     if (!textsArray || !Array.isArray(textsArray) || textsArray.length === 0) return [];
