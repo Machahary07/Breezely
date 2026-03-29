@@ -1,7 +1,205 @@
-<section class="development-section">
-  <div class="development-content">
-    <fa-icon [icon]="faSparkles" class="dev-icon"></fa-icon>
-    <h2>Flows are under development</h2>
-    <p>We're building powerful automation workflows for you. In the meantime, you can use the Chat and the Browser Extension as they are fully ready!</p>
+<div class="flows-wrapper">
+
+  <!-- ==================== HOME VIEW ==================== -->
+  <div class="flows-home" *ngIf="currentView === 'home'">
+    <div class="flows-header">
+      <div class="header-title">
+        <fa-icon [icon]="faBolt" class="title-icon"></fa-icon>
+        <h2>Your Flows</h2>
+      </div>
+      <div class="search-bar">
+        <input type="text" [(ngModel)]="searchQuery" placeholder="Search available flows...">
+      </div>
+    </div>
+    
+    <div class="cards-grid">
+      <!-- Add New Flow Card -->
+      <div class="flow-card add-new" (click)="openBuilder()">
+        <div class="add-icon">
+          <fa-icon [icon]="faPlus"></fa-icon>
+        </div>
+        <div class="card-content">
+          <h3>Create New Flow</h3>
+          <p>Use AI to build a custom automation flow instantly.</p>
+        </div>
+      </div>
+
+      <!-- Existing Cards -->
+      <div class="flow-card" *ngFor="let card of filteredFlowCards" (click)="openFlow(card)">
+        <div class="card-header">
+          <h3>{{ card.name }}</h3>
+        </div>
+        <p class="desc">{{ card.description }}</p>
+        <div class="card-meta">
+          <span class="use-case-tag">{{ card.useCase }}</span>
+          <span class="status-badge" [ngClass]="card.status.toLowerCase().replace(' ', '-')">{{ card.status }}</span>
+        </div>
+        <div class="launch-btn-container" *ngIf="card.status === 'Active' || card.status === 'Not configured'">
+          <button class="launch-btn">Launch <fa-icon [icon]="faBolt"></fa-icon></button>
+        </div>
+      </div>
+    </div>
   </div>
-</section>
+
+  <!-- ==================== COMPLAINTS DASHBOARD VIEW ==================== -->
+  <div class="complaints-dashboard" *ngIf="currentView === 'complaints'">
+    <div class="dashboard-header">
+      <button class="back-btn" (click)="goHome()">
+        <fa-icon [icon]="faArrowLeft"></fa-icon> Back
+      </button>
+      <h2>Unified Customer Complaint Dashboard</h2>
+    </div>
+
+    <div class="dashboard-panels">
+      <!-- Left: Complaint Feed -->
+      <div class="panel left-panel">
+        <div class="panel-header">
+          <h3>Complaints Feed</h3>
+          <div class="filters">
+            <select [(ngModel)]="filterPlatform" (change)="applyFilters()">
+              <option value="All">All Platforms</option>
+              <option value="Twitter">Twitter</option>
+              <option value="Email">Email</option>
+              <option value="WhatsApp">WhatsApp</option>
+            </select>
+            <select [(ngModel)]="filterStatus" (change)="applyFilters()">
+              <option value="All">Status</option>
+              <option value="Open">Open</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Resolved">Resolved</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="feed-list">
+          <div class="feed-item" *ngFor="let c of filteredComplaints" 
+               [class.active]="selectedComplaint?.id === c.id"
+               (click)="selectComplaint(c)">
+            <div class="item-header">
+              <span class="platform-badge" [ngClass]="c.platform.toLowerCase()">{{ c.platform }}</span>
+              <span class="status-dot" [ngClass]="c.status.toLowerCase().replace(' ', '-')"></span>
+            </div>
+            <strong>{{ c.customerName }}</strong>
+            <p class="preview">{{ c.message.substring(0, 50) }}...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Center: Detailed View -->
+      <div class="panel center-panel" *ngIf="selectedComplaint">
+        <div class="complaint-detail">
+          <div class="detail-header">
+            <h3>{{ selectedComplaint.customerName }}'s Complaint</h3>
+            <span class="history-tag">History: {{ customerHistoryCount }} past complaints</span>
+          </div>
+          <div class="message-box">
+             {{ selectedComplaint.message }}
+          </div>
+        </div>
+
+        <div class="reply-section">
+          <h3>AI Suggested Reply</h3>
+          
+          <div class="loading-state" *ngIf="isGeneratingReply">
+             <fa-icon [icon]="faSpinner" [class.fa-spin]="true"></fa-icon> AI is drafting...
+          </div>
+
+          <textarea *ngIf="!isGeneratingReply" 
+                    [(ngModel)]="replyDraft" 
+                    rows="8" 
+                    class="reply-textarea"></textarea>
+
+          <div class="reply-actions" *ngIf="!isGeneratingReply">
+            <button class="btn secondary" (click)="markResolved()" *ngIf="selectedComplaint.status !== 'Resolved'">Mark Resolved</button>
+            <button class="btn primary" (click)="sendReply()">Send Reply</button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="panel center-panel empty-state" *ngIf="!selectedComplaint">
+         <fa-icon [icon]="faRobot" class="empty-icon"></fa-icon>
+         <p>Select a complaint to view details and generate a reply.</p>
+      </div>
+
+      <!-- Right: AI Chat Assistant -->
+      <div class="panel right-panel" *ngIf="selectedComplaint">
+        <div class="chat-header">
+          <fa-icon [icon]="faRobot"></fa-icon> Gemini Assistant
+        </div>
+        <div class="chat-wrapper">
+          <div class="chat-instructions">
+            Ask Gemini to modify the draft. Example: "Make it more formal" or "Translate to Hindi".
+          </div>
+          <div class="chat-input-area">
+             <textarea [(ngModel)]="aiChatPrompt" placeholder="Instruct Gemini..." rows="4"></textarea>
+             <button class="send-chat-btn" (click)="sendChatToAi()" [disabled]="isChatting || !aiChatPrompt.trim()">
+                <fa-icon [icon]="isChatting ? faSpinner : faPaperPlane" [class.fa-spin]="isChatting"></fa-icon>
+             </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== FLOW BUILDER VIEW ==================== -->
+  <div class="flow-builder" *ngIf="currentView === 'builder'">
+    <div class="dashboard-header">
+      <button class="back-btn" (click)="goHome()">
+        <fa-icon [icon]="faArrowLeft"></fa-icon> Back
+      </button>
+      <h2>Add New Flow</h2>
+    </div>
+
+    <div class="dashboard-panels">
+      <!-- Left: Mock Preview -->
+      <div class="panel left-panel preview-panel" style="flex: 1.5;">
+         <div class="panel-header">
+           <h3>Live UI Preview</h3>
+         </div>
+         <div class="preview-content" *ngIf="builderConfig">
+            <div class="mock-dashboard">
+              <h4>{{ builderConfig.name }}</h4>
+              <p>{{ builderConfig.description }}</p>
+              
+              <div class="mock-grid">
+                <div class="mock-element" *ngFor="let el of builderConfig.uiLayout">
+                   <div class="skeleton-header"></div>
+                   <div class="skeleton-body" *ngIf="el !== 'Header'"></div>
+                   <span>{{ el }} Placeholder</span>
+                </div>
+              </div>
+            </div>
+         </div>
+         <div class="preview-empty empty-state" *ngIf="!builderConfig">
+            <fa-icon [icon]="faBolt" class="empty-icon"></fa-icon>
+            <p>Describe your flow to see a structural preview generated by Gemini.</p>
+         </div>
+      </div>
+      
+      <!-- Right: Prompt Builder -->
+      <div class="panel right-panel builder-chat" style="flex: 1;">
+         <div class="chat-header">
+           <fa-icon [icon]="faRobot"></fa-icon> Flow Architect
+         </div>
+         <div class="builder-content">
+           <p class="builder-desc">Tell Gemini what you want this Flow to do, and it will generate the underlying configuration and structure.</p>
+           <textarea class="builder-textarea" [(ngModel)]="builderPrompt" rows="6" placeholder="E.g. I want an automation that intercepts emails containing 'refund', tags them in Firestore, and auto-replies with our policy link..."></textarea>
+           
+           <button class="btn primary build-btn" (click)="buildFlow()" [disabled]="isBuildingConfig || !builderPrompt.trim()">
+              <fa-icon [icon]="isBuildingConfig ? faSpinner : faBolt" [class.fa-spin]="isBuildingConfig"></fa-icon> 
+              Generate AI Config
+           </button>
+  
+           <div class="config-result" *ngIf="builderConfig">
+              <div class="config-header">
+                <h4>Generated JSON</h4>
+                <button class="btn secondary btn-small" (click)="saveFlow()">Save Flow</button>
+              </div>
+              <pre>{{ builderConfig | json }}</pre>
+           </div>
+         </div>
+      </div>
+    </div>
+  </div>
+
+</div>
