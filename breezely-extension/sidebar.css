@@ -336,10 +336,24 @@ textarea::placeholder {
   margin-top: 10px;
 }
 
-.tools-left, .tools-right {
+.tools-left {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 4px;
+}
+
+.tools-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#mic-btn {
+  border: none;
+  background: transparent;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
 }
 
 .action-icon {
@@ -467,7 +481,6 @@ textarea::placeholder {
 
 .send-btn:hover {
   background-color: #1a1a1a;
-  transform: translateY(-1px);
 }
 
 .send-btn.stop-btn {
@@ -563,3 +576,62 @@ textarea::placeholder {
 .cancel-translate-btn:hover {
   background: #15803d;
 }
+
+/* Auth Status */
+.auth-status {
+  display: flex;
+  align-items: center;
+}
+
+.auth-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.auth-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.auth-dot.connected {
+  background: var(--accent);
+  box-shadow: 0 0 6px rgba(140, 255, 136, 0.5);
+}
+
+.auth-dot.disconnected {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.auth-name {
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-body);
+}
+
+/* Key Status Indicator */
+.key-indicator {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-left: 2px;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
+.key-indicator.has-key {
+  background: var(--accent);
+  box-shadow: 0 0 6px rgba(140, 255, 136, 0.5);
+}
+
+.key-indicator.no-key {
+  background: rgba(255, 255, 255, 0.2);
+}
+
