@@ -6,7 +6,7 @@
         <span class="brand-text">Breezely</span>
       </div>
       <button class="sidebar-toggle" (click)="onToggle()" [title]="collapsed ? 'Expand' : 'Collapse'">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/>
         </svg>
       </button>
@@ -15,7 +15,23 @@
     <!-- Quick Actions (New Chat, Search, Customize) -->
     <div class="sidebar-quick">
       <app-sidebar-icon-btn label="New Chat" icon="plus" [showLabel]="!collapsed" (clicked)="onNewChat()"></app-sidebar-icon-btn>
-      <app-sidebar-icon-btn label="Search" icon="search" [showLabel]="!collapsed" (clicked)="onSearch()"></app-sidebar-icon-btn>
+      <app-sidebar-icon-btn *ngIf="!isSearchActive" label="Search" icon="search" [showLabel]="!collapsed" (clicked)="activateSearch()"></app-sidebar-icon-btn>
+      <div class="search-container" *ngIf="isSearchActive" (click)="$event.stopPropagation()">
+        <div class="search-input-wrapper" [class.collapsed]="collapsed">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" class="search-icon" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+          </svg>
+          <input type="text" #searchInput placeholder="Search..." (blur)="onSearchBlur()" [(ngModel)]="searchQuery" [class.hidden]="collapsed">
+        </div>
+        <div class="search-dropdown" *ngIf="isSearchActive && !collapsed">
+          <div class="search-dropdown-item" *ngIf="searchResults.length === 0">
+            <span class="no-results">No chats found</span>
+          </div>
+          <div class="search-dropdown-item" *ngFor="let result of searchResults" (click)="onSelectSearchResult(result.id)">
+            {{ result.title }}
+          </div>
+        </div>
+      </div>
       <app-sidebar-icon-btn label="Customize" icon="briefcase" [active]="customizeActive" [showLabel]="!collapsed" (clicked)="onCustomize()"></app-sidebar-icon-btn>
     </div>
 

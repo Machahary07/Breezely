@@ -1,5 +1,6 @@
-import { Component, Input, Output, EventEmitter, AfterViewInit, ElementRef, ViewChild, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ElementRef, ViewChild, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { SidebarIconBtnComponent } from '../sidebar-icon-btn/sidebar-icon-btn';
 import { UserAvatarComponent } from '../user-avatar/user-avatar';
 import gsap from 'gsap';
@@ -12,7 +13,7 @@ interface ChatItem {
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [CommonModule, SidebarIconBtnComponent, UserAvatarComponent],
+  imports: [CommonModule, FormsModule, SidebarIconBtnComponent, UserAvatarComponent],
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.sass'
 })
@@ -32,9 +33,12 @@ export class SidebarComponent implements OnChanges {
   @Output() tabChange = new EventEmitter<'chats' | 'flows' | 'playbooks'>();
 
   @ViewChild('sidebarElement') sidebarElement!: ElementRef;
+  @ViewChild('searchInput') searchInputElement!: ElementRef;
 
   activeTab: 'chats' | 'flows' | 'playbooks' = 'chats';
   recentsOpen = true;
+  isSearchActive = false;
+  searchQuery = '';
 
   ngOnChanges(changes: SimpleChanges) {
     // Left empty since we moved to CSS only
@@ -50,6 +54,35 @@ export class SidebarComponent implements OnChanges {
 
   onNewChat() {
     this.newChat.emit();
+  }
+
+  activateSearch() {
+    this.isSearchActive = true;
+    setTimeout(() => {
+      if (this.searchInputElement) {
+        this.searchInputElement.nativeElement.focus();
+      }
+    }, 50);
+  }
+
+  get searchResults(): ChatItem[] {
+    if (!this.searchQuery.trim()) return this.recentChats;
+    const query = this.searchQuery.toLowerCase();
+    return this.recentChats.filter(chat => chat.title.toLowerCase().includes(query));
+  }
+
+  onSearchBlur() {
+    // Delay hiding the search to allow dropdown item clicks to register
+    setTimeout(() => {
+      this.isSearchActive = false;
+      this.searchQuery = '';
+    }, 150);
+  }
+
+  onSelectSearchResult(id: string) {
+    this.isSearchActive = false;
+    this.searchQuery = '';
+    this.selectChat.emit(id);
   }
 
   onSearch() {

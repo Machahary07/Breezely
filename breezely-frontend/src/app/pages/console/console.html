@@ -22,6 +22,7 @@
       (search)="onSearch()"
       (logout)="onLogout()"
       (selectChat)="onSelectChat($event)"
+      (tabChange)="onTabChange($event)"
     >
     </app-sidebar>
 
@@ -145,8 +146,14 @@
         </div>
       </section>
 
+      <!-- Flows Tab -->
+      <app-flows-view *ngIf="activeTab === 'flows' && !showCustomize"></app-flows-view>
+
+      <!-- Playbooks Tab -->
+      <app-playbooks-view *ngIf="activeTab === 'playbooks' && !showCustomize"></app-playbooks-view>
+
       <!-- Greeting and Input Area -->
-      <section class="chat-section" *ngIf="!activeChatId && !showCustomize">
+      <section class="chat-section" *ngIf="activeTab === 'chats' && !activeChatId && !showCustomize">
         <app-chat-input 
           [userFirstname]="getFirstName()"
           [greeting]="getGreeting()"
@@ -156,7 +163,7 @@
       </section>
 
       <!-- Placeholder for Chat Messages (if activeChatId) -->
-      <section class="messages-section" *ngIf="activeChatId && !showCustomize">
+      <section class="messages-section" *ngIf="activeTab === 'chats' && activeChatId && !showCustomize">
         <!-- Future: Chat Message List -->
         <div class="future-feature">
           <h3>Chat: {{ activeChatId }}</h3>

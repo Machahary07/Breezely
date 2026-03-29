@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { getAuth, User, onAuthStateChanged, signOut } from 'firebase/auth';
 import { app, db } from '../../../firebaseConfig';
-import { doc, setDoc, onSnapshot } from 'firebase/firestore';
+import { doc, setDoc, onSnapshot, collection, query, orderBy, addDoc, serverTimestamp } from 'firebase/firestore';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faOpenai } from '@fortawesome/free-brands-svg-icons';
 import { faEye, faEyeSlash, faCheck, faTrash, faPlus, faBrain, faBolt } from '@fortawesome/free-solid-svg-icons';
@@ -14,6 +14,8 @@ import { siGooglegemini, siClaude } from 'simple-icons';
 // Import new components
 import { SidebarComponent } from '../../components/sidebar/sidebar';
 import { ChatInputComponent } from '../../components/chat-input/chat-input';
+import { FlowsView } from '../../components/flows-view/flows-view';
+import { PlaybooksView } from '../../components/playbooks-view/playbooks-view';
 
 interface ChatItem {
   id: string;
@@ -29,7 +31,7 @@ interface ApiKeyData {
 @Component({
   selector: 'app-console',
   standalone: true,
-  imports: [CommonModule, SidebarComponent, ChatInputComponent, FontAwesomeModule, FormsModule],
+  imports: [CommonModule, SidebarComponent, ChatInputComponent, FlowsView, PlaybooksView, FontAwesomeModule, FormsModule],
   templateUrl: './console.html',
   styleUrl: './console.sass'
 })
@@ -58,7 +60,9 @@ export class ConsoleComponent implements OnInit, OnDestroy {
   
   // Chat state
   activeChatId: string | null = null;
+  activeTab: 'chats' | 'flows' | 'playbooks' = 'chats';
   recentChats: ChatItem[] = [];
+  private unsubscribeChats: any = null;
 
   // API Keys state
   apiKeys: { [key: string]: ApiKeyData } = {
@@ -108,6 +112,7 @@ export class ConsoleComponent implements OnInit, OnDestroy {
         if (currentUser) {
           this.user = currentUser;
           this.loadUserApiKeys(currentUser.uid);
+          this.loadUserChats();
         } else {
           this.router.navigate(['/signin']);
         }
@@ -123,6 +128,24 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     if (this.unsubscribeUserKeys) {
       this.unsubscribeUserKeys();
     }
+    if (this.unsubscribeChats) {
+      this.unsubscribeChats();
+    }
+  }
+
+  // ─── Firebase Fetch Data ───
+  loadUserChats() {
+    if (!this.user) return;
+    const chatsRef = collection(db, 'users', this.user.uid, 'chats');
+    const q = query(chatsRef, orderBy('updatedAt', 'desc'));
+    
+    this.unsubscribeChats = onSnapshot(q, (snapshot) => {
+      this.recentChats = snapshot.docs.map(doc => ({
+        id: doc.id,
+        title: doc.data()['title'] || 'New Chat'
+      }));
+      this.cdr.detectChanges();
+    });
   }
 
   loadUserApiKeys(uid: string) {
@@ -214,24 +237,38 @@ export class ConsoleComponent implements OnInit, OnDestroy {
     // Implement search logic later
   }
 
-  onSelectChat(id: string) {
-    this.activeChatId = id;
+  onSelectChat(chatId: string) {
     this.showCustomize = false;
+    this.activeTab = 'chats';
+    this.activeChatId = chatId;
   }
 
-  onSendMessage(text: string) {
-    if (!text.trim()) return;
+  onTabChange(tab: 'chats' | 'flows' | 'playbooks') {
+    this.activeTab = tab;
+    if (tab !== 'chats') {
+      this.showCustomize = false;
+      this.activeChatId = null;
+    }
+  }
 
-    // Create a mockup chat in recents
+  async onSendMessage(text: string) {
+    if (!text.trim() || !this.user) return;
+
     const title = text.length > 30 ? text.substring(0, 30) + '...' : text;
-    const newChat: ChatItem = {
-      id: Math.random().toString(36).substring(7),
-      title: title
-    };
-
-    this.recentChats.unshift(newChat);
-    this.activeChatId = newChat.id;
-    this.cdr.detectChanges();
+    
+    try {
+      const chatsRef = collection(db, 'users', this.user.uid, 'chats');
+      const docRef = await addDoc(chatsRef, {
+        title: title,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      });
+      // The snapshot listener will automatically add it to recentChats
+      this.activeChatId = docRef.id;
+      this.cdr.detectChanges();
+    } catch (e) {
+      console.error('Error creating chat:', e);
+    }
   }
 
   onLogout() {
