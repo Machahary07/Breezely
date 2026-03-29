@@ -419,16 +419,28 @@ async function runAgentLoop() {
     addTypingIndicator(typingId);
 
     try {
+        // --- OPT: DOM cache state ---
+        let cachedContext = null;
+        let lastActionChangedPage = true; // force fetch on first turn
+        // Page-changing actions that require a fresh DOM snapshot
+        const PAGE_CHANGING_ACTIONS = ['NAVIGATE', 'CLICK', 'SCROLL'];
+
         while (isAgentRunning && !userRequestedStop) {
 
             const userHistory = chatHistory.filter(m => m.role === 'user');
             const lastUserMsg = userHistory.length > 0 ? userHistory[userHistory.length - 1].content : "";
-            const isAutomationTask = /click|scroll|type|navigate|translate|this page|on here|fill|button|read|find/i.test(lastUserMsg);
+            // OPT: Expanded regex — catches "go to", "open", "visit", "buy", "search", "submit"
+            const isAutomationTask = /click|scroll|type|navigate|go to|open|visit|translate|fill|button|search|buy|find|read|show|check|submit|enter/i.test(lastUserMsg);
 
             // 1. Extract context ONLY if it's likely an automation task
             let context = { page_content: "", elements: {}, url: "", title: "" };
             if (isAutomationTask) {
-                context = await getPageContext();
+                // OPT: Reuse cached DOM snapshot if the page hasn't changed
+                if (lastActionChangedPage || cachedContext === null) {
+                    cachedContext = await getPageContext();
+                    lastActionChangedPage = false;
+                }
+                context = cachedContext;
             } else {
                 const tab = await getActiveTab();
                 if (tab) {
@@ -447,9 +459,12 @@ async function runAgentLoop() {
             const storedKeys = await chrome.storage.local.get(['apiKey_' + selectedModel]);
             const apiKey = storedKeys['apiKey_' + selectedModel] || null;
 
+            const tFetch = Date.now();
             const response = await fetch(`${BACKEND_URL}/chat`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                // OPT: keepalive reuses the TCP connection across loop turns
+                keepalive: true,
+                headers: { 'Content-Type': 'application/json', 'Connection': 'keep-alive' },
                 signal: currentAbortController.signal,
                 body: JSON.stringify({
                     messages: chatHistory,
@@ -466,6 +481,7 @@ async function runAgentLoop() {
 
             if (!response.ok) throw new Error('Network response was not ok');
             const data = await response.json();
+            console.log(`[Breezely ⚡] /chat round-trip: ${Date.now() - tFetch}ms | action: ${data.action}`);
 
             // Log assistant's action into history 
             // Only add valid string content for Sarvam's prompt engine
@@ -510,12 +526,18 @@ async function runAgentLoop() {
                     executedResponse = await executeCommandInPage(data);
                 }
 
-                // We need to give the page time to react (navigate, modal open, DOM update)
-                // If it's a navigation, wait longer for the new page to load
+                // OPT: Smart waiting — poll tab status instead of sleeping blindly
                 if (data.action === "NAVIGATE") {
-                    await new Promise(r => setTimeout(r, 6000));
+                    await waitForTabReady(); // exits as soon as tab.status === 'complete'
+                    cachedContext = null; // new page = stale cache
+                    lastActionChangedPage = false;
                 } else if (data.action !== "TRANSLATE") {
-                    await new Promise(r => setTimeout(r, 1500));
+                    // OPT: Reduced from 1500ms to 600ms for non-navigate actions
+                    await new Promise(r => setTimeout(r, 600));
+                    // Mark cache stale only if the action likely mutated the DOM
+                    if (PAGE_CHANGING_ACTIONS.includes(data.action)) {
+                        lastActionChangedPage = true;
+                    }
                 }
 
                 if (userRequestedStop) break;
@@ -687,6 +709,18 @@ function scrollToBottom() {
 async function getActiveTab() {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     return tab;
+}
+
+// OPT: Smart tab polling — replaces hardcoded setTimeout(6000) after NAVIGATE.
+// Exits as soon as the tab finishes loading (status === 'complete'), up to timeoutMs.
+async function waitForTabReady(timeoutMs = 8000) {
+    const start = Date.now();
+    while (Date.now() - start < timeoutMs) {
+        const tab = await getActiveTab();
+        if (tab && tab.status === 'complete') return;
+        await new Promise(r => setTimeout(r, 300));
+    }
+    console.warn('waitForTabReady: timed out waiting for tab to load');
 }
 
 async function injectContentScriptIfNeeded(tabId) {

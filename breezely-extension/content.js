@@ -65,8 +65,9 @@ function extractContext() {
     document.querySelectorAll('[data-1e-id]').forEach(el => el.removeAttribute('data-1e-id'));
     nextElementId = 1;
 
-    // Limit text to avoid payload size issues but keep enough for e-commerce sites
-    const text = document.body ? document.body.innerText.substring(0, 8000) : "";
+    // OPT: Trim body text from 8000 → 4000 chars. The model uses this for context
+    // only; the structured elements list is the primary navigation signal.
+    const text = document.body ? document.body.innerText.substring(0, 4000) : "";
 
     const inputs = [];
     try {
@@ -83,9 +84,14 @@ function extractContext() {
     }
 
     const buttons = [];
+    // OPT: Skip structural/decorative tags (nav, footer, header icons) — these are
+    // almost never what the model needs to click and they bloat the payload.
+    const SKIP_TAGS = new Set(['nav', 'header', 'footer']);
     try {
         document.querySelectorAll('button, a, [role="button"], [role="link"], [role="tab"], [tabindex], [onclick], li, .card, .track01').forEach(b => {
             if (b.offsetParent !== null) { // only visible
+                // Skip elements inside purely structural containers
+                if (b.closest('nav, footer') && b.tagName.toLowerCase() !== 'button') return;
                 const label = (b.innerText || b.value || b.getAttribute('aria-label') || "").trim().substring(0, 100);
                 if (label && !b.hasAttribute('data-1e-id')) {
                     b.setAttribute('data-1e-id', nextElementId);
@@ -127,7 +133,9 @@ function extractContext() {
     return {
         page_content: text,
         elements: {
-            interactable: [...inputs, ...buttons, ...images].slice(0, 400), // Keep payload broad enough for complex pages
+            // OPT: Reduced cap from 400 → 200 interactable elements.
+            // Combined with gemini.js trimming to 40, this reduces round-trip payload size.
+            interactable: [...inputs, ...buttons, ...images].slice(0, 200),
             headings: [...new Set(headings)]
         }
     };
