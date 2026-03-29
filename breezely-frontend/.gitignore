@@ -57,3 +57,9 @@ src/environments/environment.development.ts
 # Service account keys (NEVER commit these)
 **/service-account*.json
 **/serviceAccountKey*.json
+firebase-admin-key.json
+# AI and Agent stuff (keep your local AI skills private)
+.agent/
+.agent/skills/firebase/
+.windsurf/
+.windsurf/skills/firebase/
