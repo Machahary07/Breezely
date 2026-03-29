@@ -118,29 +118,60 @@
     color: var(--white)
     font-weight: 600
 
-// --- Social Button (Left Pane) --- //
+// --- Social Button (Right Pane) --- //
 .social-btn
-  display: inline-flex
+  display: flex
   align-items: center
   justify-content: center
-  gap: 10px
+  gap: 12px
   width: 100%
-  max-width: 280px
   padding: 14px
   border-radius: 100px
-  background: rgba(255, 255, 255, 0.08)
-  border: 1px solid rgba(255, 255, 255, 0.08)
-  color: var(--white)
+  background: var(--white)
+  border: 1px solid rgba(0, 0, 0, 0.2)
+  color: var(--black)
   font-family: var(--font-body)
-  font-size: 13px
+  font-size: 14px
   font-weight: 600
+  text-transform: none
+  letter-spacing: 0
   cursor: pointer
   transition: all 0.2s ease
-  margin-top: 40px
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05)
+  margin-bottom: 24px
 
   &:hover
-    background: rgba(255, 255, 255, 0.12)
-    border-color: rgba(255, 255, 255, 0.15)
+    background: #f8f8f8
+    border-color: rgba(0, 0, 0, 0.3)
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1)
+
+.google-logo
+  width: 20px
+  height: 20px
+
+.auth-divider
+  display: flex
+  align-items: center
+  text-align: center
+  margin-bottom: 24px
+  
+  &::before,
+  &::after
+    content: ''
+    flex: 1
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1)
+    
+  span
+    padding: 0 16px
+    color: rgba(255, 255, 255, 0.4)
+    font-family: var(--font-body)
+    font-size: 13px
+    font-weight: 500
+
+.auth-form-container
+  display: flex
+  flex-direction: column
+  width: 100%
 
 // --- Right Pane (Auth Forms) --- //
 .modal-right
@@ -211,20 +242,22 @@
   align-items: center
   justify-content: space-between
   width: 100%
-  padding: 16px 24px
+  padding: 14px 24px
   border-radius: 100px
-  background: rgba(255, 255, 255, 0.1)
+  background: rgba(255, 255, 255, 0.08)
   border: 1px solid rgba(255, 255, 255, 0.1)
   color: var(--white)
   font-family: var(--font-body)
   font-size: 14px
-  font-weight: 600
+  font-weight: 500
+  text-transform: none
+  letter-spacing: 0
   cursor: pointer
   transition: all 0.2s ease
   margin-top: 8px
 
   &:hover:not(:disabled)
-    background: rgba(255, 255, 255, 0.15)
+    background: rgba(255, 255, 255, 0.12)
     border-color: rgba(255, 255, 255, 0.2)
   
   &:disabled
@@ -232,7 +265,7 @@
     cursor: not-allowed
 
 .btn-arrow
-  color: rgba(255, 255, 255, 0.6)
+  color: rgba(255, 255, 255, 0.4)
 
 // --- Feedback MSG --- //
 .feedback-container

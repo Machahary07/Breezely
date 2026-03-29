@@ -170,6 +170,8 @@
   font-family: var(--font-body)
   font-size: 14px
   font-weight: 500
+  text-transform: none
+  letter-spacing: 0
   text-align: left
   cursor: pointer
   transition: all 0.2s ease
@@ -294,15 +296,22 @@
 
 .key-body
   display: flex
+  flex-direction: column
   gap: 12px
-  align-items: center
+
+.input-wrapper
+  position: relative
+  display: flex
+  flex: 1
+  width: 100%
 
   input
-    flex: 1
+    width: 100%
     background: rgba(0, 0, 0, 0.3)
     border: 1px solid rgba(255, 255, 255, 0.1)
     border-radius: 8px
     padding: 10px 16px
+    padding-right: 44px
     font-family: monospace
     font-size: 14px
     color: rgba(255, 255, 255, 0.8)
@@ -317,12 +326,31 @@
       border-color: rgba(255, 255, 255, 0.3)
       background: rgba(0, 0, 0, 0.5)
 
+.visibility-btn
+  position: absolute
+  right: 8px
+  top: 50%
+  transform: translateY(-50%)
+  background: transparent
+  border: none
+  color: rgba(255, 255, 255, 0.4)
+  padding: 8px
+  cursor: pointer
+  transition: all 0.2s ease
+  display: flex
+  align-items: center
+  justify-content: center
+  
+  &:hover
+    color: var(--white)
+
 .action-buttons
   display: flex
-  gap: 8px
+  gap: 12px
+  justify-content: flex-end
 
 .key-btn
-  padding: 10px 16px
+  padding: 8px 16px
   border-radius: 8px
   font-family: var(--font-body)
   font-size: 13px
@@ -331,6 +359,9 @@
   transition: all 0.2s ease
   border: none
   white-space: nowrap
+  display: flex
+  align-items: center
+  gap: 8px
 
   &.primary
     background: var(--white)
@@ -347,11 +378,3 @@
 
     &:hover
       background: rgba(255, 255, 255, 0.1)
-
-  &.danger
-    background: transparent
-    color: rgba(255, 107, 107, 0.8)
-
-    &:hover
-      background: rgba(255, 107, 107, 0.1)
-      color: #ff6b6b

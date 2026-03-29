@@ -91,40 +91,56 @@
         <div class="api-keys-container">
           <div class="page-header">
             <h2>Your API Keys</h2>
-            <p>Connect your third-party providers by providing API keys. These are securely stored locally for your automations.</p>
+            <p>Connect your third-party providers. Keys are stored securely in your private credentials vault.</p>
           </div>
           
           <div class="keys-grid">
-            <div class="key-card">
-              <div class="key-header">
-                <div class="key-title">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><path d="M12 6v6l4 2"/></svg>
-                  <h3>OpenAI</h3>
+            <!-- Dynamic Key Template -->
+            <ng-container *ngFor="let provider of ['gemini', 'openai', 'claude']">
+              <div class="key-card">
+                <div class="key-header">
+                  <div class="key-title">
+                    <span *ngIf="provider === 'gemini'" [innerHTML]="getSafeIcon('siGooglegemini')" style="color: #4285F4; display: flex; align-items: center;"></span>
+                    <span *ngIf="provider === 'claude'" [innerHTML]="getSafeIcon('siClaude')" style="color: #D97757; display: flex; align-items: center;"></span>
+                    <fa-icon *ngIf="provider === 'openai'" [icon]="faOpenai" style="color: #74aa9c;" [fixedWidth]="true"></fa-icon>
+                    <h3>{{ provider === 'openai' ? 'OpenAI' : (provider === 'gemini' ? 'Google Gemini' : 'Claude') }}</h3>
+                  </div>
+                  <span class="status-badge" [class.active]="apiKeys[provider].status === 'active'" [class.inactive]="apiKeys[provider].status === 'inactive'">
+                    {{ apiKeys[provider].status === 'active' ? 'Active' : 'Not configured' }}
+                  </span>
                 </div>
-                <span class="status-badge active">Active</span>
-              </div>
-              <div class="key-body">
-                <input type="password" value="sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" readonly>
-                <div class="action-buttons">
-                  <button class="key-btn secondary">Replace</button>
-                  <button class="key-btn danger">Remove</button>
-                </div>
-              </div>
-            </div>
 
-            <div class="key-card">
-              <div class="key-header">
-                <div class="key-title">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-                  <h3>Anthropic</h3>
+                <div class="key-body">
+                  <div class="input-wrapper">
+                    <!-- Key exists but hidden -->
+                    <input *ngIf="apiKeys[provider].status === 'active' && !visibleKeys[provider]" 
+                           type="password" value="••••••••••••••••••••••••" readonly>
+                    
+                    <!-- Key exists and visible -->
+                    <input *ngIf="apiKeys[provider].status === 'active' && visibleKeys[provider]" 
+                           type="text" [value]="apiKeys[provider].key" readonly>
+                    
+                    <!-- New Key Input -->
+                    <input *ngIf="apiKeys[provider].status === 'inactive'" 
+                           type="password" [placeholder]="'Enter ' + provider + ' API key...'" 
+                           [(ngModel)]="editingKeys[provider]">
+
+                    <button class="visibility-btn" *ngIf="apiKeys[provider].status === 'active'" (click)="toggleKeyVisibility(provider)">
+                      <fa-icon [icon]="visibleKeys[provider] ? faEyeSlash : faEye"></fa-icon>
+                    </button>
+                  </div>
+
+                  <div class="action-buttons">
+                    <button class="key-btn primary" *ngIf="apiKeys[provider].status === 'inactive'" (click)="onSaveKey(provider)">
+                      <fa-icon [icon]="faPlus"></fa-icon> Save
+                    </button>
+                    <button class="key-btn secondary" *ngIf="apiKeys[provider].status === 'active'" (click)="onRemoveKey(provider)">
+                       <fa-icon [icon]="faTrash"></fa-icon> Remove
+                    </button>
+                  </div>
                 </div>
-                <span class="status-badge inactive">Not configured</span>
               </div>
-              <div class="key-body">
-                <input type="password" placeholder="sk-ant-...">
-                <button class="key-btn primary">Save Key</button>
-              </div>
-            </div>
+            </ng-container>
           </div>
         </div>
       </section>
