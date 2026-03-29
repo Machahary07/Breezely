@@ -2,7 +2,7 @@ import { Component, OnInit, Inject, PLATFORM_ID, ChangeDetectorRef } from '@angu
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { getAuth, GoogleAuthProvider, signInWithPopup, sendSignInLinkToEmail, isSignInWithEmailLink, signInWithEmailLink, fetchSignInMethodsForEmail } from 'firebase/auth';
+import { getAuth, GoogleAuthProvider, signInWithPopup, sendSignInLinkToEmail, isSignInWithEmailLink, signInWithEmailLink, fetchSignInMethodsForEmail, onAuthStateChanged } from 'firebase/auth';
 import { app } from '../../../firebaseConfig';
 
 @Component({
@@ -31,30 +31,46 @@ export class AuthComponent implements OnInit {
   async ngOnInit() {
     // Ensure this runs only in the browser, not during Angular SSR
     if (isPlatformBrowser(this.platformId)) {
-      // Check if the user is returning from a magic link click
-      if (isSignInWithEmailLink(this.auth, window.location.href)) {
-        let emailForSignIn = window.localStorage.getItem('emailForSignIn');
-        
-        if (!emailForSignIn) {
-          // User opened the link on a different device. Ask for email to confirm.
-          emailForSignIn = window.prompt('Please provide your email for confirmation');
-        }
+      this.isLoading = true;
+      this.cdr.detectChanges();
 
-        if (emailForSignIn) {
-          this.isLoading = true;
-          this.showMessage('Authenticating Magic Link...', false);
-          try {
-            await signInWithEmailLink(this.auth, emailForSignIn, window.location.href);
-            window.localStorage.removeItem('emailForSignIn');
-            this.showMessage('Success! Rerouting...', false);
-            this.router.navigate(['/console']);
-          } catch (error: any) {
-            this.showMessage(error.message || 'Error executing magic link.', true);
+      const unsubscribe = onAuthStateChanged(this.auth, async (currentUser) => {
+        if (currentUser) {
+          this.router.navigate(['/console']);
+        } else {
+          // Not logged in automatically. Check if returning from a magic link.
+          if (isSignInWithEmailLink(this.auth, window.location.href)) {
+            let emailForSignIn = window.localStorage.getItem('emailForSignIn');
+            
+            if (!emailForSignIn) {
+              emailForSignIn = window.prompt('Please provide your email for confirmation');
+            }
+
+            if (emailForSignIn) {
+              this.showMessage('Authenticating Magic Link...', false);
+              this.cdr.detectChanges();
+              try {
+                await signInWithEmailLink(this.auth, emailForSignIn, window.location.href);
+                window.localStorage.removeItem('emailForSignIn');
+                this.showMessage('Success! Rerouting...', false);
+                // onAuthStateChanged will fire again with currentUser, triggering navigation
+              } catch (error: any) {
+                this.showMessage(error.message || 'Error executing magic link.', true);
+                this.isLoading = false;
+                this.step = 'email'; // revert to default
+                this.cdr.detectChanges();
+              }
+            } else {
+              this.isLoading = false;
+              this.cdr.detectChanges();
+            }
+          } else {
+            // Normal visit to sign in page
             this.isLoading = false;
-            this.step = 'email'; // revert to default
+            this.cdr.detectChanges();
           }
         }
-      }
+      });
     }
   }
 

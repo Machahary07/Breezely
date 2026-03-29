@@ -6,8 +6,14 @@
   <!-- Optional overlay if video is too bright -->
   <div class="bg-overlay"></div>
 
+  <!-- Loading State (Overrides everything when verifying auth) -->
+  <div class="loading-state" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Loading your workspace...</p>
+  </div>
+
   <!-- Centered Glass Modal -->
-  <div class="glass-modal">
+  <div class="glass-modal" *ngIf="!isLoading">
     
     <!-- Left Pane -->
     <section class="modal-left">
