@@ -30,3 +30,6 @@ Thumbs.db
 dist/
 build/
 out/
+
+# Firebase configuration (leaked credentials)
+firebase-config.js
